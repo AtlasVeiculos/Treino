@@ -111,6 +111,19 @@
 
   .warmup{ background: var(--amber-bg); border: 1px solid #3d2f1a; border-radius: var(--radius); padding: 14px 16px; font-size: 13.5px; line-height: 1.5; color: #e8c893; margin-bottom: 16px; display: flex; gap: 10px; }
 
+  .stretch-card{ background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 16px; overflow:hidden; }
+  .stretch-head{ display:flex; justify-content:space-between; align-items:center; padding: 13px 16px; cursor:pointer; font-size:13.5px; font-weight:600; }
+  .stretch-head .chev{ color: var(--text-mute); font-size:12px; transition: transform .15s ease; }
+  .stretch-head.open .chev{ transform: rotate(180deg); }
+  .stretch-body{ display:none; padding: 0 16px 14px; }
+  .stretch-body.open{ display:block; }
+  .stretch-item{ display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px solid var(--line); font-size:13px; }
+  .stretch-item:first-child{ border-top:none; }
+  .stretch-item .sn{ color: var(--text); }
+  .stretch-item .sd{ color: var(--text-mute); font-size:12px; white-space:nowrap; }
+  .stretch-card.pre .stretch-head{ color: var(--blue); }
+  .stretch-card.pos .stretch-head{ color: var(--green); }
+
   .exercise{ background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--line); border-radius: 4px; padding: 16px; margin-bottom: 10px; }
   .exercise.tag-orange{ border-left-color: var(--orange); }
   .exercise.tag-blue{ border-left-color: var(--blue); }
@@ -120,7 +133,9 @@
   .tag-blue .ex-scheme{ color: var(--blue); }
   .tag-green .ex-scheme{ color: var(--green); }
   .ex-head{ display:flex; gap: 12px; }
-  .ex-icon{ flex: 0 0 auto; width: 48px; height: 48px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); padding: 6px; color: var(--blue); }
+  .ex-icon{ flex: 0 0 auto; width: 64px; height: 64px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); padding: 6px; color: var(--blue); overflow:hidden; cursor:pointer; }
+  .ex-icon.has-img{ background:#fff; padding:4px; }
+  .ex-icon img{ width:100%; height:100%; object-fit:contain; border-radius:6px; }
   .ex-icon svg{ width:100%; height:100%; }
   .ex-icon .mv{ animation: iconBob 1.3s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
   .ex-icon .mv-pulse{ animation: iconPulse 1.3s ease-in-out infinite; transform-origin: center; }
@@ -134,6 +149,9 @@
   .ex-tip{ font-size: 12.5px; color: var(--text-mute); line-height: 1.5; margin-top: 8px; }
   .ex-tip b{ color: #cdd3de; font-weight:600; }
   .swap-btn{ margin-top:10px; background: none; border: 1px solid var(--line); color: var(--text-mute); font-family:'Inter',sans-serif; font-size: 11.5px; padding: 6px 10px; border-radius: 8px; cursor:pointer; }
+  .swap-picker{ display:none; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .swap-picker.open{ display:flex; }
+  .swap-opt{ background: var(--surface-2); border:1px solid var(--line); color: var(--text); font-size:11.5px; padding:6px 10px; border-radius:999px; cursor:pointer; }
   .expand-ic{ flex: 0 0 auto; color: var(--text-mute); font-size: 13px; margin-top: 4px; transition: transform .15s ease; }
   .ex-top.open .expand-ic{ transform: rotate(180deg); }
 
@@ -148,6 +166,19 @@
   .rest-timer{ display:flex; align-items:center; gap:10px; margin-top: 6px; }
 
   .session-ctrl{ margin-bottom: 14px; }
+
+  .lightbox{ display:none; position:fixed; inset:0; z-index:200; background:rgba(5,6,9,0.92); align-items:center; justify-content:center; padding:24px; }
+  .lightbox.show{ display:flex; }
+  .lightbox-inner{ max-width:100%; text-align:center; }
+  .lightbox-inner img{ max-width:100%; max-height:70vh; border-radius:12px; background:#fff; }
+  .lightbox-caption{ color:var(--text); font-size:14px; margin-top:12px; font-weight:600; }
+
+  .floatrest{ display:none; position:fixed; left:12px; right:12px; bottom:74px; z-index:60; background: var(--green); color:#06120d; border-radius:12px; padding:12px 14px; align-items:center; justify-content:space-between; box-shadow:0 6px 20px rgba(0,0,0,0.4); }
+  .floatrest.show{ display:flex; }
+  .fr-info{ display:flex; flex-direction:column; }
+  .fr-label{ font-size:11px; opacity:0.8; text-transform:uppercase; letter-spacing:0.04em; }
+  .fr-clock{ font-family:'Bebas Neue',sans-serif; font-size:26px; line-height:1; }
+  .fr-skip{ background:rgba(6,18,13,0.15); border:1px solid rgba(6,18,13,0.3); color:#06120d; font-weight:700; font-size:12px; padding:8px 12px; border-radius:8px; cursor:pointer; }
   .start-workout-btn{ width:100%; font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:0.04em; text-transform:uppercase; background: var(--surface); border: 1px solid var(--blue); color: var(--blue); border-radius: 4px; padding: 13px; cursor:pointer; }
   .session-ctrl.live{ display:flex; align-items:center; gap:8px; background: var(--surface); border:1px solid var(--green); border-radius:4px; padding: 11px 14px; font-size:13px; color: var(--text-mute); }
   .dot-live{ width:8px; height:8px; border-radius:50%; background: var(--green); animation: liveBlink 1.2s ease-in-out infinite; flex:0 0 auto; }
@@ -289,6 +320,7 @@
         </div>
         <button class="assess-save" id="assessSave">Salvar avaliação de hoje</button>
         <div class="assess-next" id="assessNext"></div>
+        <div class="load-note" id="weightProjection" style="margin-top:10px;"></div>
         <div class="assess-history" id="assessHistory"></div>
       </div>
 
@@ -398,6 +430,7 @@
       <select class="ex-select" id="exSelect"></select>
       <div id="rmSummary"></div>
       <div id="chartHolder"></div>
+      <div id="progressionForecast" style="margin-top:10px;"></div>
     </div>
 
     <div class="card">
@@ -458,6 +491,21 @@
   </div>
 
   <footer>Aprenda o movimento antes de aumentar a carga. Ombro, lombar e joelho agradecem.</footer>
+  </div>
+
+  <div class="lightbox" id="lightbox" onclick="closeImg()">
+    <div class="lightbox-inner">
+      <img id="lightboxImg" src="" alt="">
+      <div class="lightbox-caption" id="lightboxCaption"></div>
+    </div>
+  </div>
+
+  <div class="floatrest" id="floatRest">
+    <div class="fr-info">
+      <span class="fr-label" id="floatRestLabel">Descanso</span>
+      <span class="fr-clock" id="floatRestClock">0:00</span>
+    </div>
+    <button class="fr-skip" id="floatRestSkip">Pular ✕</button>
   </div>
 
   <nav class="bottomnav" id="bottomnav">
@@ -566,7 +614,7 @@
         ]},
         { id:'frest1', type:'rest', short:'D', label:'Descanso' },
         { id:'fb', type:'treino', short:'B', label:'Corpo Inteiro B', exercises:[
-          { name:'Levantamento terra romeno', tag:'orange', sets:5, reps:'5', rpe:8, icon:'deadlift', group:'posterior', tip:'Barra próxima às canelas, quadril para trás antes de flexionar o joelho. Costas retas do início ao fim.' },
+          { name:'Levantamento terra romeno (hip hinge)', tag:'orange', sets:5, reps:'5', rpe:8, icon:'deadlift', group:'posterior', tip:'Barra próxima às canelas, quadril para trás antes de flexionar o joelho. Costas retas do início ao fim.' },
           { name:'Desenvolvimento com halteres', tag:'orange', sets:5, reps:'5', rpe:8, icon:'press', group:'ombro', tip:'Core contraído, sem arquear a lombar para empurrar a carga. Se precisar arquear, o peso está pesado demais.' },
           { name:'Puxada na polia (pegada aberta)', tag:'orange', sets:4, reps:'6', rpe:8, icon:'pulldown', group:'costas', tip:'Puxe com as costas, não só com o braço. Controle a volta, não solte o peso.' },
           { name:'Prancha lateral (core)', tag:'green', sets:3, reps:'30–40s cada lado', rpe:8, icon:'plankside', group:'core', tip:'Mantenha o quadril alinhado, sem deixar cair. Estabilidade de tronco protege a lombar nos levantamentos pesados.' },
@@ -589,6 +637,29 @@
   };
   const EXPECTED_FREQ = { hipertrofia:6, forca:3, resistencia:6 };
 
+  // Equipment-based alternatives per exercise — same muscle group, different equipment,
+  // for when the gym doesn't have (or is busy with) the original piece of equipment.
+  const SUBSTITUTES = {
+    'Supino reto com barra': ['Supino com halteres', 'Supino na máquina', 'Flexão de braço (bodyweight)'],
+    'Desenvolvimento com halteres': ['Desenvolvimento com barra', 'Desenvolvimento na máquina', 'Desenvolvimento Arnold'],
+    'Crucifixo com halteres': ['Crucifixo no cabo (cross-over)', 'Peck deck (máquina)', 'Flexão de braço aberta'],
+    'Elevação lateral': ['Elevação lateral no cabo', 'Elevação lateral na máquina'],
+    'Tríceps corda no pulley': ['Tríceps testa com barra', 'Tríceps francês com halteres', 'Mergulho no banco (bodyweight)'],
+    'Puxada na polia (pegada aberta)': ['Barra fixa (pull-up)', 'Puxada na máquina articulada', 'Remada alta no cabo'],
+    'Remada curvada com barra': ['Remada com halteres (unilateral)', 'Remada na máquina', 'Remada cabo sentado'],
+    'Encolhimento com halteres': ['Encolhimento com barra', 'Encolhimento no smith'],
+    'Puxada facial (face pull)': ['Crucifixo invertido com halteres', 'Face pull com elástico'],
+    'Rosca direta com barra': ['Rosca com halteres', 'Rosca no cabo', 'Rosca com elástico'],
+    'Agachamento livre': ['Agachamento no smith', 'Agachamento goblet com halteres', 'Leg press 45°'],
+    'Levantamento terra romeno (hip hinge)': ['RDL com halteres', 'Bom dia (good morning) com barra', 'Mesa flexora'],
+    'Leg press 45°': ['Agachamento goblet com halteres', 'Afundo com halteres', 'Hack machine'],
+    'Elevação de quadril (hip thrust)': ['Hip thrust com halteres', 'Ponte de glúteo no chão (bodyweight)'],
+    'Mesa flexora': ['Stiff com halteres', 'Flexora em pé no cabo'],
+    'Panturrilha em pé': ['Panturrilha em pé com halteres', 'Panturrilha no degrau (bodyweight)'],
+    'Prancha abdominal (core)': ['Abdominal na polia (cable crunch)', 'Prancha com elevação de perna'],
+    'Prancha lateral (core)': ['Prancha lateral com elevação de perna', 'Prancha lateral com joelho apoiado (mais fácil)'],
+  };
+
   const GROUP_TARGETS = {
     peito:[10,20], costas:[10,20], ombro:[8,16], biceps:[6,15], triceps:[6,15],
     quadriceps:[10,20], posterior:[8,16], gluteo:[6,12], panturrilha:[8,16], core:[6,12]
@@ -607,11 +678,70 @@
   function fromDisplayWeight(val){ return state.settings.unit === 'lb' ? val/2.20462 : val; }
   function unitLabel(){ return state.settings.unit === 'lb' ? 'lb' : 'kg'; }
 
+  // Dynamic mobility before (primes the joint/muscle without the force-output penalty static
+  // stretching causes pre-lift); static holds after (safe once muscles are warm, aids recovery/ROM).
+  const STRETCHES = {
+    superior: {
+      pre: [
+        { name:'Rotação de ombros', dose:'10x para frente + 10x para trás' },
+        { name:'Balanço cruzado de braços (arm swings)', dose:'10 repetições' },
+        { name:'Rotação torácica em quatro apoios', dose:'8x cada lado' },
+        { name:'Flexão/retração escapular (scap push-up)', dose:'10 repetições' },
+      ],
+      pos: [
+        { name:'Peitoral no batente da porta', dose:'30s cada lado' },
+        { name:'Tríceps sobre a cabeça', dose:'30s cada braço' },
+        { name:'Costas (lat stretch), segurando algo acima e inclinando o tronco', dose:'30s cada lado' },
+        { name:'Ombro cruzado (cross-body)', dose:'30s cada braço' },
+        { name:'Bíceps com braço estendido contra a parede', dose:'20s cada braço' },
+      ],
+    },
+    inferior: {
+      pre: [
+        { name:'Agachamento livre (peso corporal)', dose:'10 repetições' },
+        { name:'Balanço de perna à frente/atrás (leg swings)', dose:'10x cada perna' },
+        { name:'Avanço com rotação de tronco', dose:'8x cada lado' },
+        { name:'Círculos de tornozelo e quadril', dose:'10x cada lado' },
+      ],
+      pos: [
+        { name:'Quadríceps em pé (calcanhar no glúteo)', dose:'30s cada perna' },
+        { name:'Posterior de coxa (sentado ou em pé)', dose:'30s cada perna' },
+        { name:'Panturrilha na parede', dose:'30s cada perna' },
+        { name:'Flexor de quadril (afundo com quadril à frente)', dose:'30s cada lado' },
+        { name:'Glúteo (figura 4 / pombo)', dose:'30s cada lado' },
+      ],
+    },
+    completo: {
+      pre: [
+        { name:'Rotação de ombros', dose:'10x cada direção' },
+        { name:'Agachamento livre (peso corporal)', dose:'10 repetições' },
+        { name:'Balanço de perna à frente/atrás', dose:'8x cada perna' },
+        { name:'Rotação torácica em quatro apoios', dose:'8x cada lado' },
+      ],
+      pos: [
+        { name:'Peitoral no batente da porta', dose:'30s cada lado' },
+        { name:'Costas (lat stretch)', dose:'30s cada lado' },
+        { name:'Posterior de coxa', dose:'30s cada perna' },
+        { name:'Flexor de quadril', dose:'30s cada lado' },
+        { name:'Panturrilha na parede', dose:'30s cada perna' },
+      ],
+    },
+  };
+  function dayStretchCategory(day){
+    if (day.label.includes('Empurrar') || day.label.includes('Puxar')) return 'superior';
+    if (day.label.includes('Pernas')) return 'inferior';
+    return 'completo';
+  }
+
   const nutrition = [
-    { icon:'🍗', title:'Proteína em toda refeição principal', desc:'Frango, ovo, carne, atum, queijo cottage. Mínimo 150–180g de proteína/dia para 95kg.' },
-    { icon:'⏰', title:'Coma antes de treinar', desc:'30–60 min antes: fruta + fonte de proteína (ovo, iogurte grego). Treino em jejum é perda de músculo.' },
+    { icon:'🍗', title:'Proteína em toda refeição principal', desc:'1,6–2,2g de proteína por kg de peso ao dia é a faixa usada pela Sociedade Internacional de Nutrição Esportiva (ISSN) para maximizar ganho muscular. Frango, ovo, carne, peixe, queijo cottage.' },
+    { icon:'⏰', title:'Coma antes de treinar', desc:'30–60 min antes: fruta + fonte de proteína (ovo, iogurte grego). Treino em jejum prolongado tende a puxar energia do próprio músculo.' },
     { icon:'💧', title:'Hidratação', desc:'Mínimo 3 litros/dia. Com treino matinal, beba 500ml assim que acordar.' },
     { icon:'🌙', title:'Refeição pós-treino', desc:'Dentro de 1h após o treino: carboidrato + proteína. Ex: arroz + frango ou batata-doce + ovo.' },
+    { icon:'🥦', title:'Comida de verdade é a base', desc:'O Guia Alimentar do Ministério da Saúde recomenda montar a alimentação em torno de comida in natura ou minimamente processada — arroz, feijão, carnes, ovos, frutas, legumes. Ultraprocessado (salgadinho, refrigerante, embutido) fica pra ocasião, não pro dia a dia.' },
+    { icon:'🧂', title:'Açúcar e sal com moderação', desc:'A OMS recomenda menos de 10% das calorias vindas de açúcar (idealmente abaixo de 5%) e até 5g de sal por dia — cerca de 1 colher de chá. Nenhum dos dois ajuda a hipertrofia; excesso de sódio só atrapalha a pressão arterial.' },
+    { icon:'🫒', title:'Gordura de qualidade', desc:'Prefira gorduras insaturadas — azeite, abacate, castanhas, peixe — no lugar de frituras e embutidos. Gordura trans industrial (presente em muitos processados) a OMS recomenda evitar por completo.' },
+    { icon:'📈', title:'Ritmo de ganho de peso', desc:'Pra ganhar músculo sem acumular gordura em excesso, o ritmo saudável fica entre 0,25% e 0,5% do peso corporal por semana. Ganho mais rápido que isso tende a ser mais gordura do que músculo — veja a projeção na aba Perfil.' },
   ];
 
   const phases = [
@@ -828,6 +958,27 @@
       </div>`;
     });
     histEl.innerHTML = rows.join('');
+    renderWeightProjection(last, nextDue);
+  }
+
+  // Projected weight range by the next assessment, based on the 0.25–0.5% of bodyweight per
+  // week pace commonly used for lean mass gain (faster than that tends to be more fat than muscle).
+  function renderWeightProjection(last, nextDue){
+    const box = document.getElementById('weightProjection');
+    if (!box) return;
+    const days = daysBetween(last.date, nextDue.toISOString().slice(0,10));
+    const weeks = days/7;
+    const dateTxt = nextDue.toLocaleDateString('pt-BR');
+    const u = unitLabel();
+    if (state.macroGoal === 'ganho'){
+      const lo = last.weight * (1 + 0.0025*weeks);
+      const hi = last.weight * (1 + 0.005*weeks);
+      box.innerHTML = `<b style="color:#cdd3de;">Projeção até ${dateTxt}:</b> ${toDisplayWeight(lo).toFixed(1)}–${toDisplayWeight(hi).toFixed(1)} ${u}. Baseado no ritmo de 0,25–0,5% do peso corporal por semana para ganho de massa magra — mais rápido que isso tende a ser mais gordura do que músculo.`;
+    } else if (state.macroGoal === 'manutencao'){
+      box.innerHTML = `<b style="color:#cdd3de;">Objetivo: manutenção.</b> Expectativa é o peso ficar estável (±0,5${u}) até ${dateTxt}.`;
+    } else {
+      box.innerHTML = `<b style="color:#cdd3de;">Objetivo: emagrecimento.</b> Aqui o peso descer não é o alvo principal — acompanhe o IMC e, se possível, medidas de cintura junto com a balança até ${dateTxt}.`;
+    }
   }
 
   let pendingPhoto = null;
@@ -999,6 +1150,23 @@
   // ============ DAY CONTENT ============
   const dayContentEl = document.getElementById('dayContent');
 
+  function buildStretchCard(kind, title, items, note){
+    const card = document.createElement('div');
+    card.className = 'stretch-card ' + kind;
+    const head = document.createElement('div');
+    head.className = 'stretch-head';
+    head.innerHTML = `<span>${title}</span><span class="chev">▾</span>`;
+    const body = document.createElement('div');
+    body.className = 'stretch-body';
+    body.innerHTML = `
+      <div class="cardsub" style="margin-bottom:8px;">${note}</div>
+      ${items.map(s => `<div class="stretch-item"><span class="sn">${s.name}</span><span class="sd">${s.dose}</span></div>`).join('')}
+    `;
+    head.onclick = () => { head.classList.toggle('open'); body.classList.toggle('open'); };
+    card.appendChild(head); card.appendChild(body);
+    return card;
+  }
+
   function dayProgress(day){
     let total = 0, done = 0;
     day.exercises.forEach((ex, ei) => {
@@ -1107,6 +1275,10 @@
     warm.innerHTML = `<span>⏱</span><span>Aquecimento: 5 min de esteira leve + 1 série de 15 reps com 40% da carga antes de cada exercício principal.</span>`;
     dayContentEl.appendChild(warm);
 
+    const stretchCat = dayStretchCategory(day);
+    dayContentEl.appendChild(buildStretchCard('pre', '🤸 Mobilidade antes de treinar (dinâmica)', STRETCHES[stretchCat].pre,
+      'Movimento, não alongamento parado — alongar estático antes de carga pesada reduz a força na hora de levantar.'));
+
     day.exercises.forEach((ex, ei) => {
       const allDone = [...Array(ex.sets)].every((_, si) => {
         const st = state.setState[stateKey(day, ei, si)];
@@ -1116,14 +1288,14 @@
       const restSecs = restSecondsFor(style, ex);
       const exId = style.id+'-'+day.id+'-'+ei;
       const effName = state.substitutions[exId] || ex.name;
-      const warmup = warmupSuggestion(effName);
+      const warmup = warmupSuggestionFor(day, ei, effName);
       const card = document.createElement('div');
       card.className = 'exercise tag-' + ex.tag + (allDone ? ' done' : '');
 
       const head = document.createElement('div');
       head.className = 'ex-head';
       head.innerHTML = `
-        <div class="ex-icon">${iconSvg(ex.icon)}</div>
+        <div class="ex-icon${ex.img ? ' has-img' : ''}" ${ex.img ? `onclick="enlargeImg('${ex.img}','${ex.name.replace(/'/g,"\\'")}')"` : ''}>${ex.img ? `<img src="${ex.img}" alt="${ex.name}" loading="lazy">` : iconSvg(ex.icon)}</div>
         <div class="ex-main">
           <div class="ex-top">
             <div>
@@ -1134,18 +1306,36 @@
             <div class="expand-ic">▾</div>
           </div>
           <div class="ex-tip"><b>Execução:</b> ${state.substitutions[exId] ? 'Substituição sua — confira a execução correta desse exercício por conta própria.' : ex.tip}</div>
-          ${warmup ? `<div class="ex-tip">🔥 <b>Aquecimento sugerido:</b> ${warmup}</div>` : ''}
+          <div class="ex-tip" id="warmup-${exId}" style="${warmup ? '' : 'display:none;'}">🔥 <b>Aquecimento sugerido:</b> <span id="warmuptxt-${exId}">${warmup || ''}</span></div>
           ${ex.supersetWith ? `<div class="ex-tip">⚡ <b>Superset:</b> encadeie com "${ex.supersetWith}" — uma série de cada, sem descanso entre os dois. Descanse só depois do par, para economizar tempo de sessão.</div>` : ''}
-          <button class="swap-btn" data-exid="${exId}">🔁 ${state.substitutions[exId] ? 'Trocar de volta / editar' : 'Sem esse equipamento hoje? Trocar'}</button>
+          <button class="swap-btn" data-exid="${exId}">🔁 ${state.substitutions[exId] ? 'Trocar de volta / mudar' : 'Sem esse equipamento hoje? Trocar'}</button>
+          <div class="swap-picker" id="swappicker-${exId}"></div>
         </div>
       `;
       head.querySelector('.swap-btn').onclick = (e) => {
         e.stopPropagation();
-        const val = prompt('Substituir "' + ex.name + '" por qual exercício hoje?', state.substitutions[exId] || '');
-        if (val === null) return;
-        if (val.trim() === '') delete state.substitutions[exId]; else state.substitutions[exId] = val.trim();
-        saveState();
-        renderDayContent();
+        const picker = document.getElementById('swappicker-'+exId);
+        if (picker.classList.contains('open')){ picker.classList.remove('open'); picker.innerHTML=''; return; }
+        const alts = SUBSTITUTES[ex.name] || [];
+        const options = [ex.name, ...alts, 'Outro (digitar)'];
+        picker.innerHTML = options.map(o => `<button class="swap-opt" data-v="${o.replace(/"/g,'&quot;')}">${o === ex.name ? '↩ Original: '+o : o}</button>`).join('');
+        picker.classList.add('open');
+        picker.querySelectorAll('.swap-opt').forEach(btn => {
+          btn.onclick = (ev) => {
+            ev.stopPropagation();
+            const v = btn.dataset.v;
+            if (v === ex.name){ delete state.substitutions[exId]; }
+            else if (v === 'Outro (digitar)'){
+              const custom = prompt('Nome do exercício substituto:', '');
+              if (custom === null) return;
+              if (custom.trim() === '') delete state.substitutions[exId]; else state.substitutions[exId] = custom.trim();
+            } else {
+              state.substitutions[exId] = v;
+            }
+            saveState();
+            renderDayContent();
+          };
+        });
       };
       card.appendChild(head);
 
@@ -1171,12 +1361,19 @@
           const v = weightInput.value;
           st.weight = v === '' ? '' : String(fromDisplayWeight(parseFloat(v)));
           saveState();
+          if (si === 0){
+            const line = document.getElementById('warmup-'+exId);
+            const txt = document.getElementById('warmuptxt-'+exId);
+            const basis = warmupBasisFor(day, ei, effName);
+            if (line && txt && basis){ line.style.display=''; txt.textContent = warmupText(basis); }
+            else if (line){ line.style.display='none'; }
+          }
         };
         repsInput.oninput = () => { st.reps = repsInput.value; saveState(); };
         row.querySelector('.setcheck').onclick = () => {
           st.checked = !st.checked;
           saveState();
-          if (st.checked){ openCards.add(exId); startRestTimer(exId, restSecs); }
+          if (st.checked){ openCards.add(exId); startRestTimer(exId, restSecs, effName); }
           renderDayContent();
           renderLog();
         };
@@ -1186,7 +1383,7 @@
       const timerWrap = document.createElement('div');
       timerWrap.className = 'rest-timer';
       timerWrap.innerHTML = `<button class="rest-btn" id="restbtn-${exId}">Iniciar descanso ${restSecs}s</button><span class="rest-clock" id="restclock-${exId}"></span>`;
-      timerWrap.querySelector('.rest-btn').onclick = () => startRestTimer(exId, restSecs);
+      timerWrap.querySelector('.rest-btn').onclick = () => startRestTimer(exId, restSecs, effName);
       body.appendChild(timerWrap);
       updateTimerDOM(exId);
 
@@ -1201,6 +1398,9 @@
 
       dayContentEl.appendChild(card);
     });
+
+    dayContentEl.appendChild(buildStretchCard('pos', '🧘 Alongamento pós-treino (estático)', STRETCHES[stretchCat].pos,
+      'Agora sim, segure cada posição sem forçar até doer — o músculo já está quente, é o momento certo para ganhar amplitude.'));
 
     if (viewIndex === curIdx){
       const btn = document.createElement('button');
@@ -1238,26 +1438,59 @@
   function updateTimerDOM(id){
     const btn = document.getElementById('restbtn-'+id);
     const clock = document.getElementById('restclock-'+id);
-    if (!btn || !clock) return;
     const t = timers[id];
-    if (!t || (!t.running && !t.done)){
-      btn.classList.remove('running');
-      btn.textContent = 'Iniciar descanso ' + (t ? t.total : btn.dataset.total || '') + 's';
-      clock.textContent = '';
-    } else if (t.running){
-      btn.classList.add('running');
-      btn.textContent = 'Descansando…';
-      clock.textContent = fmtRest(t.secs);
+    if (btn && clock){
+      if (!t || (!t.running && !t.done)){
+        btn.classList.remove('running');
+        btn.textContent = 'Iniciar descanso ' + (t ? t.total : btn.dataset.total || '') + 's';
+        clock.textContent = '';
+      } else if (t.running){
+        btn.classList.add('running');
+        btn.textContent = 'Descansando…';
+        clock.textContent = fmtRest(t.secs);
+      } else {
+        btn.classList.remove('running');
+        btn.textContent = 'Iniciar descanso ' + t.total + 's';
+        clock.textContent = 'Pronto ✓';
+      }
+    }
+    if (id === activeFloatTimerId) updateFloatRest();
+  }
+
+  // Floating rest bar always mirrors whichever timer was started most recently, so the
+  // countdown stays visible even after scrolling away from that exercise's card.
+  let activeFloatTimerId = null;
+  let floatHideTimeout = null;
+  function updateFloatRest(){
+    const bar = document.getElementById('floatRest');
+    const t = timers[activeFloatTimerId];
+    if (!t){ bar.classList.remove('show'); return; }
+    document.getElementById('floatRestLabel').textContent = t.label || 'Descanso';
+    if (t.running){
+      document.getElementById('floatRestClock').textContent = fmtRest(t.secs);
+      bar.classList.add('show');
+      if (floatHideTimeout){ clearTimeout(floatHideTimeout); floatHideTimeout = null; }
+    } else if (t.done){
+      document.getElementById('floatRestClock').textContent = 'Pronto ✓';
+      bar.classList.add('show');
+      if (!floatHideTimeout) floatHideTimeout = setTimeout(() => { bar.classList.remove('show'); floatHideTimeout = null; }, 4000);
     } else {
-      btn.classList.remove('running');
-      btn.textContent = 'Iniciar descanso ' + t.total + 's';
-      clock.textContent = 'Pronto ✓';
+      bar.classList.remove('show');
     }
   }
-  function startRestTimer(id, seconds){
+  document.getElementById('floatRestSkip').onclick = () => {
+    const t = timers[activeFloatTimerId];
+    if (!t) return;
+    if (t.intervalId) clearInterval(t.intervalId);
+    t.running = false; t.done = true; t.secs = 0;
+    updateTimerDOM(activeFloatTimerId);
+  };
+
+  function startRestTimer(id, seconds, label){
     if (timers[id] && timers[id].intervalId) clearInterval(timers[id].intervalId);
-    const t = { total: seconds, secs: seconds, endAt: Date.now() + seconds*1000, running: true, done: false, intervalId: null };
+    const t = { total: seconds, secs: seconds, endAt: Date.now() + seconds*1000, running: true, done: false, intervalId: null, label: label };
     timers[id] = t;
+    activeFloatTimerId = id;
     updateTimerDOM(id);
     t.intervalId = setInterval(() => tickRestTimer(id), 250);
   }
@@ -1278,6 +1511,14 @@
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) Object.keys(timers).forEach(tickRestTimer);
   });
+
+  // ============ IMAGE LIGHTBOX ============
+  function enlargeImg(url, name){
+    document.getElementById('lightboxImg').src = url;
+    document.getElementById('lightboxCaption').textContent = name;
+    document.getElementById('lightbox').classList.add('show');
+  }
+  function closeImg(){ document.getElementById('lightbox').classList.remove('show'); }
 
   // Tiny beep via WebAudio, unlocked by the first tap anywhere (autoplay policy).
   let audioCtx = null;
@@ -1365,12 +1606,56 @@
     if (!sessions.length) return null;
     return sessions[sessions.length-1].weight || null;
   }
-  function warmupSuggestion(exerciseName){
-    const w = lastWorkingWeight(exerciseName);
-    if (!w) return null;
+  function warmupText(kg){
     const u = unitLabel();
-    const step = kg => Math.round(toDisplayWeight(kg));
-    return `${step(w*0.4)} → ${step(w*0.6)} → ${step(w*0.8)} ${u} antes da 1ª série de trabalho`;
+    const step = v => Math.round(toDisplayWeight(v));
+    return `${step(kg*0.4)} → ${step(kg*0.6)} → ${step(kg*0.8)} ${u} antes da 1ª série de trabalho (40/60/80% da carga alvo)`;
+  }
+  // Prefers whatever weight is already typed into this exercise's first set (even if not yet
+  // checked/saved as done) over history, so the ladder updates live as the person plans today's load.
+  function warmupBasisFor(day, ei, effName){
+    const st0 = state.setState[stateKey(day, ei, 0)];
+    if (st0 && st0.weight) return parseFloat(st0.weight);
+    return lastWorkingWeight(effName);
+  }
+  function warmupSuggestionFor(day, ei, effName){
+    const basis = warmupBasisFor(day, ei, effName);
+    return basis ? warmupText(basis) : null;
+  }
+
+  // Finds the exercise's target rep-range definition wherever it appears in the style library.
+  function findExerciseDef(name){
+    let def = null;
+    Object.values(STYLES).forEach(style => style.sequence.forEach(day => {
+      if (day.type !== 'treino' || def) return;
+      day.exercises.forEach(ex => { if (ex.name === name) def = ex; });
+    }));
+    return def;
+  }
+  // Double-progression forecast: ready to add load once every set in the most recent logged
+  // session hit the top of the target rep range; projected date uses this exercise's own
+  // historical session cadence (falls back to 3 days for a brand-new exercise).
+  function progressionForecast(name){
+    const def = findExerciseDef(name);
+    if (!def) return null;
+    const m = def.reps.match(/(\d+)\s*[–-]\s*(\d+)/);
+    if (!m) return null; // skip time-based holds (plank etc.) — no rep target to compare against
+    const targetMax = parseInt(m[2]);
+    const entries = state.history.filter(h => h.exerciseName === name);
+    if (!entries.length) return null;
+    const lastDate = entries.reduce((a,b) => a.date > b.date ? a : b).date;
+    const lastSets = entries.filter(h => h.date === lastDate);
+    const ready = lastSets.length >= def.sets && lastSets.every(s => s.reps >= targetMax);
+    const dates = [...new Set(entries.map(e => e.date))].sort();
+    let avgGap = 3;
+    if (dates.length >= 2){
+      let total = 0;
+      for (let i=1;i<dates.length;i++) total += daysBetween(dates[i-1], dates[i]);
+      avgGap = Math.max(1, Math.round(total/(dates.length-1)));
+    }
+    const nextDate = new Date(lastDate);
+    nextDate.setDate(nextDate.getDate() + avgGap);
+    return { ready, nextDate, targetMax, lastDate };
   }
 
   function lineChartSvg(points){
@@ -1412,9 +1697,11 @@
     const sessionsKg = name ? sessionsForExercise(name) : [];
     const holder = document.getElementById('chartHolder');
     const summary = document.getElementById('rmSummary');
+    const fcBox = document.getElementById('progressionForecast');
     if (sessionsKg.length === 0){
       summary.innerHTML = '';
       holder.innerHTML = '<div class="chart-empty">Sem dados ainda. Complete séries desse exercício e avance o treino para começar o histórico.</div>';
+      if (fcBox) fcBox.innerHTML = '';
       return;
     }
     const u = unitLabel();
@@ -1430,6 +1717,17 @@
       </div>
     `;
     holder.innerHTML = lineChartSvg(sessions);
+
+    if (fcBox){
+      const fc = progressionForecast(name);
+      if (!fc){
+        fcBox.innerHTML = '';
+      } else if (fc.ready){
+        fcBox.innerHTML = `<div class="load-note" style="border-color:var(--green);background:#0d2018;color:#a9e0c3;">✓ Bateu ${fc.targetMax} reps em todas as séries na última sessão (${new Date(fc.lastDate).toLocaleDateString('pt-BR')}). Pronto pra subir ~5% de carga no próximo treino — previsto para ${fc.nextDate.toLocaleDateString('pt-BR')}.</div>`;
+      } else {
+        fcBox.innerHTML = `<div class="load-note">Ainda não bateu ${fc.targetMax} reps em todas as séries. Mantenha a carga atual até conseguir — próxima sessão prevista para ${fc.nextDate.toLocaleDateString('pt-BR')}.</div>`;
+      }
+    }
   }
 
   function renderStagnation(){
@@ -1543,6 +1841,7 @@
       state.macroGoal = key; saveState();
       [...macroPillsEl.children].forEach(b => b.classList.toggle('on', b.dataset.key===key));
       renderMacros();
+      renderAssessment();
     };
     macroPillsEl.appendChild(btn);
   });
