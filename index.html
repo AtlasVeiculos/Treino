@@ -148,6 +148,18 @@
   .ex-rpe{ font-size: 11.5px; color: var(--text-mute); margin-top: 2px; }
   .ex-tip{ font-size: 12.5px; color: var(--text-mute); line-height: 1.5; margin-top: 8px; }
   .ex-tip b{ color: #cdd3de; font-weight:600; }
+  .adapt-tip{ border-radius:8px; padding:8px 10px; background: var(--surface-2); }
+  .adapt-tip.adapt-subir{ border-left: 3px solid var(--green); }
+  .adapt-tip.adapt-descer{ border-left: 3px solid var(--red); }
+  .adapt-tip.adapt-manter{ border-left: 3px solid var(--blue); }
+
+  .fatigue-card{ background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-top:16px; }
+  .fatigue-q{ font-size:14px; font-weight:600; margin-bottom:12px; text-align:center; }
+  .fatigue-opts{ display:flex; gap:6px; }
+  .fatigue-opts button{ flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; background: var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:10px 4px; cursor:pointer; color: var(--text); font-family:'Inter',sans-serif; font-size:10.5px; }
+  .fatigue-opts button:hover{ border-color: var(--blue); }
+  .fatigue-opts .fic{ font-size:20px; }
+  .fatigue-trend{ background: var(--amber-bg); border:1px solid #3d2f1a; color:#e8c893; border-radius: var(--radius); padding:13px 16px; font-size:13px; line-height:1.5; margin-bottom:16px; }
   .swap-btn{ margin-top:10px; background: none; border: 1px solid var(--line); color: var(--text-mute); font-family:'Inter',sans-serif; font-size: 11.5px; padding: 6px 10px; border-radius: 8px; cursor:pointer; }
   .swap-picker{ display:none; flex-wrap:wrap; gap:6px; margin-top:8px; }
   .swap-picker.open{ display:flex; }
@@ -214,6 +226,19 @@
   .stagnant-item .sn{ font-weight:600; }
   .stagnant-item .sd{ color: var(--amber); font-size:12px; white-space:nowrap; }
   .allgood{ font-size: 13px; color: var(--green); padding: 4px 0; }
+
+  .fatigue-meta{ font-size:12px; color: var(--text-mute); margin-bottom:10px; }
+  .fatigue-verdict{ border-radius: 10px; padding: 12px 14px; font-size: 13px; line-height:1.5; margin-bottom: 12px; border: 1px solid; }
+  .fatigue-verdict.progredir{ background:#182420; border-color: var(--green); color:#a9e0c3; }
+  .fatigue-verdict.manter{ background:#182233; border-color: var(--blue); color:#dff28a; }
+  .fatigue-verdict.reduzir{ background: var(--amber-bg); border-color: var(--amber); color:#e8c893; }
+  .fatigue-verdict.atencao{ background:#2a1815; border-color: var(--red); color:#f3b3a8; }
+  .fatigue-item{ display:flex; justify-content:space-between; gap:10px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .fatigue-item:first-child{ border-top:none; }
+  .fatigue-item .fn{ color: var(--text); }
+  .fatigue-item .fd{ color: var(--text-mute); font-size:12px; white-space:nowrap; }
+  .fatigue-item .fd.high{ color: var(--red); }
+  .fatigue-tonnage{ font-size:12.5px; color: var(--text-mute); margin-top:10px; padding-top:10px; border-top:1px solid var(--line); }
 
   .vol-row{ margin-bottom: 12px; }
   .vol-top{ display:flex; justify-content:space-between; font-size: 12.5px; margin-bottom: 5px; }
@@ -437,6 +462,12 @@
       <h3>Alertas de estagnação</h3>
       <div class="cardsub">Exercícios sem subir de carga nas últimas sessões registradas.</div>
       <div id="stagnantList"></div>
+    </div>
+
+    <div class="card">
+      <h3>Fadiga da última sessão</h3>
+      <div class="cardsub">Queda de reps entre a 1ª e a última série de cada exercício, e comparação da tonelagem com a vez anterior do mesmo treino.</div>
+      <div id="fatigueBox"></div>
     </div>
 
     <div class="card">
@@ -1179,7 +1210,7 @@
     return { total, done };
   }
 
-  function commitSessionHistory(style, day, durationMs){
+  function commitSessionHistory(style, day, durationMs, fatigue){
     const today = todayISO();
     let any = false;
     day.exercises.forEach((ex, ei) => {
@@ -1199,7 +1230,7 @@
         delete state.setState[key];
       }
     });
-    if (any) state.sessionsLog.push({ date: today, styleId: style.id, dayId: day.id, label: day.label, durationMs: durationMs || null });
+    if (any) state.sessionsLog.push({ date: today, styleId: style.id, dayId: day.id, label: day.label, durationMs: durationMs || null, fatigue: fatigue != null ? fatigue : null });
   }
 
   function renderDayContent(){
@@ -1209,6 +1240,14 @@
     dayContentEl.innerHTML = '';
 
     previewBanner.classList.toggle('show', viewIndex !== curIdx);
+
+    const trend = recentFatigueTrend(style.id);
+    if (trend){
+      const tbox = document.createElement('div');
+      tbox.className = 'fatigue-trend';
+      tbox.textContent = '⚠ ' + trend;
+      dayContentEl.appendChild(tbox);
+    }
 
     if (day.type === 'rest'){
       const card = document.createElement('div');
@@ -1289,6 +1328,7 @@
       const exId = style.id+'-'+day.id+'-'+ei;
       const effName = state.substitutions[exId] || ex.name;
       const warmup = warmupSuggestionFor(day, ei, effName);
+      const adapt = exerciseAdaptation(effName);
       const card = document.createElement('div');
       card.className = 'exercise tag-' + ex.tag + (allDone ? ' done' : '');
 
@@ -1307,6 +1347,7 @@
           </div>
           <div class="ex-tip"><b>Execução:</b> ${state.substitutions[exId] ? 'Substituição sua — confira a execução correta desse exercício por conta própria.' : ex.tip}</div>
           <div class="ex-tip" id="warmup-${exId}" style="${warmup ? '' : 'display:none;'}">🔥 <b>Aquecimento sugerido:</b> <span id="warmuptxt-${exId}">${warmup || ''}</span></div>
+          ${adapt ? `<div class="ex-tip adapt-tip adapt-${adapt.action}">${adapt.action==='subir'?'📈':adapt.action==='descer'?'📉':'➡️'} <b>Ajuste sugerido:</b> ${adapt.action==='subir'?'suba para ~'+Math.round(toDisplayWeight(adapt.suggestedWeight))+unitLabel():adapt.action==='descer'?'reduza para ~'+Math.round(toDisplayWeight(adapt.suggestedWeight))+unitLabel():'mantenha ~'+Math.round(toDisplayWeight(adapt.lastWeight))+unitLabel()} — ${adapt.reason}</div>` : ''}
           ${ex.supersetWith ? `<div class="ex-tip">⚡ <b>Superset:</b> encadeie com "${ex.supersetWith}" — uma série de cada, sem descanso entre os dois. Descanse só depois do par, para economizar tempo de sessão.</div>` : ''}
           <button class="swap-btn" data-exid="${exId}">🔁 ${state.substitutions[exId] ? 'Trocar de volta / mudar' : 'Sem esse equipamento hoje? Trocar'}</button>
           <div class="swap-picker" id="swappicker-${exId}"></div>
@@ -1403,25 +1444,51 @@
       'Agora sim, segure cada posição sem forçar até doer — o músculo já está quente, é o momento certo para ganhar amplitude.'));
 
     if (viewIndex === curIdx){
+      const wrap = document.createElement('div');
       const btn = document.createElement('button');
       btn.className = 'advance-btn';
       btn.textContent = total && done === total ? 'Finalizar treino — ir para o próximo' : 'Marcar como feito e ir para o próximo';
-      btn.onclick = () => {
-        let durationMs = null;
-        if (state.activeSession && state.activeSession.key === sessKey){
-          durationMs = Date.now() - state.activeSession.start;
-          state.activeSession = null;
-          if (workoutClockTimer) { clearInterval(workoutClockTimer); workoutClockTimer = null; }
-        }
-        commitSessionHistory(style, day, durationMs);
-        state.currentIndexByStyle[style.id] = (curIdx + 1) % style.sequence.length;
-        viewIndex = state.currentIndexByStyle[style.id];
-        saveState();
-        renderAll();
-        renderAnalysis();
-      };
-      dayContentEl.appendChild(btn);
+      btn.onclick = () => renderFatiguePicker(wrap, style, day, sessKey);
+      wrap.appendChild(btn);
+      dayContentEl.appendChild(wrap);
     }
+  }
+
+  const FATIGUE_OPTS = [
+    { v:2, ic:'😌', label:'Muito leve' },
+    { v:4, ic:'🙂', label:'Leve' },
+    { v:6, ic:'😐', label:'Moderado' },
+    { v:8, ic:'😮\u200d💨', label:'Difícil' },
+    { v:10, ic:'🥵', label:'Extremo' },
+  ];
+  function renderFatiguePicker(wrap, style, day, sessKey){
+    wrap.innerHTML = `
+      <div class="fatigue-card">
+        <div class="fatigue-q">Como foi a fadiga/esforço desse treino?</div>
+        <div class="fatigue-opts">
+          ${FATIGUE_OPTS.map(o => `<button data-f="${o.v}"><span class="fic">${o.ic}</span><span>${o.label}</span></button>`).join('')}
+        </div>
+        <div class="cardsub" style="margin:8px 0 0;">Isso ajusta a sugestão de carga do seu próximo treino neste mesmo exercício.</div>
+      </div>
+    `;
+    wrap.querySelectorAll('.fatigue-opts button').forEach(b => {
+      b.onclick = () => finishWorkout(style, day, sessKey, parseInt(b.dataset.f));
+    });
+  }
+  function finishWorkout(style, day, sessKey, fatigue){
+    let durationMs = null;
+    if (state.activeSession && state.activeSession.key === sessKey){
+      durationMs = Date.now() - state.activeSession.start;
+      state.activeSession = null;
+      if (workoutClockTimer) { clearInterval(workoutClockTimer); workoutClockTimer = null; }
+    }
+    const curIdx = state.currentIndexByStyle[style.id] || 0;
+    commitSessionHistory(style, day, durationMs, fatigue);
+    state.currentIndexByStyle[style.id] = (curIdx + 1) % style.sequence.length;
+    viewIndex = state.currentIndexByStyle[style.id];
+    saveState();
+    renderAll();
+    renderAnalysis();
   }
 
   function sessionKeyFor(style, day){ return style.id + '|' + day.id; }
@@ -1632,6 +1699,53 @@
     }));
     return def;
   }
+  // Fatigue-aware autoregulation: crosses what you actually lifted last time (reps vs. target
+  // range) against how hard that session felt, and recommends load for the next attempt —
+  // the same performance × effort logic coaches use to autoregulate instead of blind +5%/week.
+  function exerciseAdaptation(name){
+    const def = findExerciseDef(name);
+    if (!def) return null;
+    const m = def.reps.match(/(\d+)\s*[–-]\s*(\d+)/);
+    if (!m) return null; // skip time-based holds (plank etc.)
+    const targetMin = parseInt(m[1]), targetMax = parseInt(m[2]);
+    const entries = state.history.filter(h => h.exerciseName === name);
+    if (!entries.length) return null;
+    const last = entries.reduce((a,b) => a.date > b.date ? a : b);
+    const lastSets = entries.filter(h => h.date === last.date && h.styleId === last.styleId && h.dayId === last.dayId && h.exerciseName === name);
+    const lastWeight = Math.max(...lastSets.map(s => s.weight || 0));
+    if (!lastWeight) return null;
+    const metTop = lastSets.length >= def.sets && lastSets.every(s => s.reps >= targetMax);
+    const belowMin = lastSets.some(s => s.reps < targetMin);
+    const sessEntry = state.sessionsLog.find(s => s.date===last.date && s.styleId===last.styleId && s.dayId===last.dayId);
+    const fatigue = sessEntry && sessEntry.fatigue != null ? sessEntry.fatigue : null;
+
+    let action, mult, reason;
+    if (fatigue == null){
+      action = metTop ? 'subir' : (belowMin ? 'descer' : 'manter');
+      mult = metTop ? 1.05 : (belowMin ? 0.93 : 1);
+      reason = 'Sem registro de fadiga daquela sessão — sugestão baseada só nas repetições.';
+    } else if (fatigue <= 4){
+      if (metTop){ action='subir'; mult=1.075; reason='Bateu o topo da faixa e sobrou fôlego — dá pra subir um pouco mais que o padrão.'; }
+      else if (belowMin){ action='manter'; mult=1; reason='Esforço baixo mas não completou nem o mínimo de reps — pode ser técnica, não carga. Mantenha e foque em completar.'; }
+      else { action='subir'; mult=1.05; reason='Dentro da faixa com esforço baixo — pode subir a carga.'; }
+    } else if (fatigue <= 7){
+      if (metTop){ action='subir'; mult=1.05; reason='Bateu o topo da faixa com esforço moderado — progressão normal, suba ~5%.'; }
+      else if (belowMin){ action='descer'; mult=0.95; reason='Esforço já moderado e não completou o mínimo de reps — reduza um pouco a carga.'; }
+      else { action='manter'; mult=1; reason='Dentro da faixa, esforço moderado — mantenha a carga e tente mais reps da próxima vez.'; }
+    } else {
+      if (metTop){ action='manter'; mult=1; reason='Bateu o topo da faixa, mas com esforço muito alto — consolide nessa carga antes de subir.'; }
+      else if (belowMin){ action='descer'; mult=0.90; reason='Esforço extremo e nem o mínimo de reps saiu — sinal de fadiga acumulada, reduza a carga.'; }
+      else { action='manter'; mult=0.97; reason='Esforço alto mesmo dentro da faixa — mantenha ou reduza levemente, priorize recuperar.'; }
+    }
+    return { lastWeight, suggestedWeight: Math.max(0, lastWeight*mult), action, reason, fatigue, targetMin, targetMax, lastDate: last.date };
+  }
+  function recentFatigueTrend(styleId){
+    const recent = state.sessionsLog.filter(s => s.styleId===styleId && s.fatigue!=null).slice(-3);
+    if (recent.length < 3) return null;
+    if (recent.every(s => s.fatigue >= 8)) return 'Suas últimas ' + recent.length + ' sessões vieram com fadiga muito alta. Considere um dia de descanso extra ou adiantar a semana de deload.';
+    return null;
+  }
+
   // Double-progression forecast: ready to add load once every set in the most recent logged
   // session hit the top of the target rep range; projected date uses this exercise's own
   // historical session cadence (falls back to 3 days for a brand-new exercise).
@@ -1821,10 +1935,84 @@
     `;
   }
 
+  // ============ FATIGUE ANALYSIS ============
+  function sessionTonnage(s){
+    return state.history
+      .filter(h => h.date === s.date && h.styleId === s.styleId && h.dayId === s.dayId)
+      .reduce((sum, h) => sum + h.weight * h.reps, 0);
+  }
+
+  function fatigueAnalysisForSession(sessionLogEntry){
+    const entries = state.history.filter(h =>
+      h.date === sessionLogEntry.date && h.styleId === sessionLogEntry.styleId && h.dayId === sessionLogEntry.dayId);
+    const byExercise = {};
+    entries.forEach(e => { (byExercise[e.exerciseName] = byExercise[e.exerciseName] || []).push(e); });
+
+    const perExercise = Object.entries(byExercise).map(([name, sets]) => {
+      const repsArr = sets.map(s => s.reps).filter(r => r > 0);
+      if (repsArr.length < 2) return { name, dropPct: null, first: repsArr[0] || null, last: repsArr[repsArr.length-1] || null };
+      const first = repsArr[0], last = repsArr[repsArr.length-1];
+      const dropPct = first > 0 ? Math.round(((first - last) / first) * 100) : 0;
+      return { name, dropPct, first, last };
+    });
+
+    const sameSlot = state.sessionsLog
+      .filter(s => s.styleId === sessionLogEntry.styleId && s.dayId === sessionLogEntry.dayId)
+      .sort((a,b) => a.date < b.date ? -1 : 1);
+    const idx = sameSlot.findIndex(s => s.date === sessionLogEntry.date);
+    let tonnageTrendPct = null, prevTonnage = null, curTonnage = null;
+    if (idx > 0){
+      prevTonnage = sessionTonnage(sameSlot[idx-1]);
+      curTonnage = sessionTonnage(sameSlot[idx]);
+      tonnageTrendPct = prevTonnage > 0 ? Math.round(((curTonnage - prevTonnage) / prevTonnage) * 100) : null;
+    }
+    return { perExercise, tonnageTrendPct, prevTonnage, curTonnage };
+  }
+
+  function nextSessionAdaptation(fatigue){
+    const highDrop = fatigue.perExercise.filter(e => e.dropPct !== null && e.dropPct >= 25);
+    const midDrop = fatigue.perExercise.filter(e => e.dropPct !== null && e.dropPct >= 15 && e.dropPct < 25);
+    if (state.painSelected.length > 0){
+      return { level:'atencao', text:'Você sinalizou dor na triagem (aba Treino). Isso pesa mais que qualquer número de fadiga: no próximo treino, priorize técnica, considere reduzir carga ou trocar o exercício enquanto a dor não passar.' };
+    }
+    if (highDrop.length >= 2 || (fatigue.tonnageTrendPct !== null && fatigue.tonnageTrendPct <= -15)){
+      return { level:'reduzir', text:'Sinais de fadiga acumulada: queda grande de reps entre séries e/ou tonelagem abaixo do esperado em relação à última vez. Para o próximo treino desse mesmo dia: não suba carga, e se der, encaixe um dia de descanso extra antes dele.' };
+    }
+    if (highDrop.length === 1 || midDrop.length >= 2){
+      return { level:'manter', text:'Fadiga moderada e pontual — dentro do normal. Mantenha a carga atual nos exercícios que caíram muito de reps; nos demais, siga o plano normalmente.' };
+    }
+    return { level:'progredir', text:'Sem sinais relevantes de fadiga nessa sessão. Se você bateu o topo da faixa de reps em algum exercício, siga a progressão dupla e suba a carga em ~5% nele no próximo treino.' };
+  }
+
+  function renderFatigue(){
+    const box = document.getElementById('fatigueBox');
+    if (!state.sessionsLog.length){
+      box.innerHTML = '<div class="logempty">Nenhuma sessão arquivada ainda. Termine um treino (botão "Finalizar treino") para a análise aparecer aqui.</div>';
+      return;
+    }
+    const last = state.sessionsLog[state.sessionsLog.length-1];
+    const fatigue = fatigueAnalysisForSession(last);
+    const verdict = nextSessionAdaptation(fatigue);
+
+    const metaHtml = `<div class="fatigue-meta">${new Date(last.date).toLocaleDateString('pt-BR')} · ${findDayLabel(last.styleId,last.dayId)}${last.durationMs ? ' · ' + Math.round(last.durationMs/60000) + 'min' : ''}</div>`;
+    const verdictHtml = `<div class="fatigue-verdict ${verdict.level}">${verdict.text}</div>`;
+    const itemsHtml = fatigue.perExercise.map(e => {
+      const label = e.dropPct === null ? 'série única' : `${e.first}→${e.last} reps (${e.dropPct >= 0 ? '-' : '+'}${Math.abs(e.dropPct)}%)`;
+      const cls = e.dropPct !== null && e.dropPct >= 25 ? 'high' : '';
+      return `<div class="fatigue-item"><span class="fn">${e.name}</span><span class="fd ${cls}">${label}</span></div>`;
+    }).join('');
+    const tonnageHtml = fatigue.tonnageTrendPct !== null
+      ? `<div class="fatigue-tonnage">Tonelagem desta sessão vs. a última vez neste treino: ${Math.round(toDisplayWeight(fatigue.curTonnage))}${unitLabel()} (${fatigue.tonnageTrendPct >= 0 ? '+' : ''}${fatigue.tonnageTrendPct}%)</div>`
+      : `<div class="fatigue-tonnage">Primeira vez com dados suficientes para comparar tonelagem neste treino — a próxima já vai mostrar a tendência.</div>`;
+
+    box.innerHTML = metaHtml + verdictHtml + itemsHtml + tonnageHtml;
+  }
+
   function renderAnalysis(){
     populateExSelect();
     renderProgressCard();
     renderStagnation();
+    renderFatigue();
     renderVolume();
     renderTonnage();
     renderAdherence();
