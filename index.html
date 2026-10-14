@@ -310,6 +310,29 @@
   .navbtn .navic{ font-size:19px; line-height:1; filter: grayscale(1) opacity(0.7); }
   .navbtn.active{ color: var(--blue); }
   .navbtn.active .navic{ filter:none; }
+
+  /* ===== v2 — melhorias vindas do estudo do BodBot ===== */
+  .week-card .adh-text{ font-size: 12.5px; }
+  .wk-title{ font-family:'Bebas Neue',sans-serif; font-size: 17px; color: var(--text); letter-spacing: 0.02em; }
+  .today-card .screen-opts .pill{ font-size: 12.5px; }
+  .joint-tip{ border-left: 3px solid var(--red); border-radius: 8px; padding: 8px 10px; background: #2a1815; color: #f3b3a8; }
+  .joint-tip.ok{ border-left-color: var(--green); background: #182420; color: #a9e0c3; }
+  .joint-swap, .joint-undo{ margin-top: 6px; display: inline-block; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); font-family:'Inter',sans-serif; font-size: 11.5px; padding: 6px 10px; border-radius: 8px; cursor: pointer; }
+  .demo-link{ display: inline-block; margin: 10px 0 0 6px; font-size: 11.5px; color: var(--blue); text-decoration: none; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; }
+  .hold-btn{ width: 100%; margin-top: 8px; }
+  .hist-session{ border-bottom: 1px solid var(--line); padding: 9px 0; }
+  .hist-session:last-child{ border-bottom: none; }
+  .hist-session summary{ cursor: pointer; display: flex; justify-content: space-between; gap: 8px; font-size: 13px; list-style: none; }
+  .hist-session summary::-webkit-details-marker{ display: none; }
+  .hist-meta{ color: var(--text-mute); font-size: 11.5px; white-space: nowrap; }
+  .hist-ex{ display: flex; justify-content: space-between; gap: 10px; padding: 7px 0 0; font-size: 12.5px; }
+  .hist-ex .sn{ color: var(--text); }
+  .hist-ex .sd{ color: var(--text-mute); text-align: right; }
+  .mob-test{ padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .mob-test .rt{ font-weight: 600; font-size: 14px; margin-bottom: 3px; }
+  .mob-test .rd{ font-size: 12.5px; color: var(--text-mute); line-height: 1.5; margin-bottom: 6px; }
+  .mob-row{ display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 6px; font-size: 12.5px; color: var(--text-mute); }
+  .mob-row .screen-opts .pill{ padding: 6px 10px; font-size: 12px; }
 </style>
 </head>
 <body>
@@ -328,6 +351,9 @@
         <div class="assess-grid" style="grid-template-columns: 1fr auto;">
           <div class="field"><label>Como o app deve te chamar</label><input type="text" id="nameInput" maxlength="40"></div>
           <button class="databtn" id="nameSave" style="align-self:end;">Salvar</button>
+        </div>
+        <div class="assess-grid" style="grid-template-columns: 1fr; margin-top:8px;">
+          <div class="field"><label>Data de nascimento (calcula a idade)</label><input type="date" id="birthInput"></div>
         </div>
       </div>
 
@@ -349,15 +375,10 @@
         <div class="assess-history" id="assessHistory"></div>
       </div>
 
-      <div class="screen">
-        <div class="screen-head">Antes de começar: você sente dor em algum destes pontos hoje?</div>
-        <div class="screen-opts" id="screenOpts">
-          <button class="pill" data-p="ombro">Ombro</button>
-          <button class="pill" data-p="lombar">Lombar</button>
-          <button class="pill" data-p="joelho">Joelho</button>
-          <button class="pill" data-p="nenhuma">Nenhuma dor</button>
-        </div>
-        <div class="screen-warn" id="screenWarn"></div>
+      <div class="card" id="mobilityCard" style="margin-top:14px;">
+        <h3>Testes de mobilidade</h3>
+        <div class="cardsub">Dois testes rápidos, sem equipamento. Se algum não passar, o aquecimento do treino ganha exercícios para corrigir. Refaça a cada 4 semanas.</div>
+        <div id="mobilityBody"></div>
       </div>
 
       <div class="card">
@@ -380,6 +401,14 @@
           <div class="macro-pills" style="margin:0;" id="unitPills">
             <button class="pill blue" data-u="kg">kg</button>
             <button class="pill blue" data-u="lb">lb</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <span>Meta semanal de treinos <span id="weeklyGoalLabel" class="cardsub" style="margin:0;"></span></span>
+          <div style="display:flex;gap:6px;">
+            <button class="databtn" id="goalMinus" style="padding:8px 12px;">−1</button>
+            <button class="databtn" id="goalReset" style="padding:8px 12px;">Padrão</button>
+            <button class="databtn" id="goalPlus" style="padding:8px 12px;">+1</button>
           </div>
         </div>
         <div class="settings-row">
@@ -422,6 +451,26 @@
         <b style="color:#cdd3de;">Deload:</b> a cada 4 semanas, para dissipar fadiga acumulada antes que vire estagnação ou lesão.<br><br>
         <b style="color:#cdd3de;">Supersets:</b> pares de músculos antagonistas ou pequenos (bíceps/ombro posterior, panturrilha/core) são feitos em sequência sem descanso entre eles — mantém o volume completo dentro de uma sessão de ~40–50 min.
       </div>
+    </div>
+
+    <div class="card week-card" id="weekCard"></div>
+
+    <div class="card today-card" id="todayCard">
+      <h3>Hoje</h3>
+      <div class="cardsub">Onde você treina e se algo dói. O treino se ajusta a isso só por hoje.</div>
+      <div class="screen-opts" id="placeOpts">
+        <button class="pill blue" data-place="academia">🏋 Academia</button>
+        <button class="pill blue" data-place="casa">🏠 Casa (halteres e elástico)</button>
+      </div>
+      <div class="screen-head" style="margin-top:14px;">Sente dor em algum destes pontos hoje?</div>
+      <div class="screen-opts" id="screenOpts">
+        <button class="pill" data-p="ombro">Ombro</button>
+        <button class="pill" data-p="lombar">Lombar</button>
+        <button class="pill" data-p="joelho">Joelho</button>
+        <button class="pill" data-p="nenhuma">Nenhuma dor</button>
+      </div>
+      <div class="screen-warn" id="screenWarn"></div>
+      <button class="databtn" id="applyJointSwaps" style="display:none;width:100%;margin-top:10px;">Trocar hoje os exercícios que forçam esse ponto</button>
     </div>
 
     <div class="stepper" id="stepper"></div>
@@ -483,6 +532,12 @@
     </div>
 
     <div class="card">
+      <h3>Histórico de treinos</h3>
+      <div class="cardsub">Série por série, do jeito que você fez — sem médias. Toque numa sessão para abrir.</div>
+      <div id="historyList"></div>
+    </div>
+
+    <div class="card">
       <h3>Aderência — <span id="adhStyleName"></span></h3>
       <div class="cardsub">Sessões concluídas nos últimos 28 dias vs. esperado para este estilo.</div>
       <div id="adherenceBox"></div>
@@ -515,6 +570,8 @@
   <div class="section wrap">
     <h2>Progressão — semanas 1 a 12</h2>
     <div class="sub">Vale para qualquer estilo escolhido: aprenda o padrão de movimento antes de somar volume, e volume antes de perseguir intensidade máxima. Toque numa semana para ver a fase. Bordas tracejadas são deload.</div>
+
+    <div class="card" id="cycleCard"></div>
 
     <div class="weekpicker" id="weekpicker"></div>
     <div id="phaseBlocks"></div>
@@ -691,6 +748,99 @@
     'Prancha lateral (core)': ['Prancha lateral com elevação de perna', 'Prancha lateral com joelho apoiado (mais fácil)'],
   };
 
+  // ============ v2: dor do dia, treino em casa e testes de mobilidade ============
+  const JOINT_LABEL = { ombro:'Ombro', lombar:'Lombar', joelho:'Joelho' };
+  // Exercícios que mais exigem cada ponto (usados quando você marca dor no dia).
+  const JOINT_STRESS = {
+    ombro: ['Supino reto com barra', 'Desenvolvimento com halteres', 'Crucifixo com halteres', 'Elevação lateral', 'Puxada na polia (pegada aberta)'],
+    lombar: ['Agachamento livre', 'Levantamento terra romeno (hip hinge)', 'Remada curvada com barra', 'Leg press 45°', 'Desenvolvimento com halteres', 'Elevação de quadril (hip thrust)'],
+    joelho: ['Agachamento livre', 'Leg press 45°'],
+  };
+  // Versão amigável para cada ponto — vale só para o dia em que a dor foi marcada.
+  const JOINT_SAFE_ALT = {
+    ombro: {
+      'Supino reto com barra': 'Supino com halteres (pegada neutra)',
+      'Desenvolvimento com halteres': 'Desenvolvimento landmine (barra no canto)',
+      'Crucifixo com halteres': 'Crucifixo no cabo (amplitude curta)',
+      'Elevação lateral': 'Elevação lateral no cabo (amplitude curta)',
+      'Puxada na polia (pegada aberta)': 'Puxada na polia com pegada neutra (triângulo)',
+    },
+    lombar: {
+      'Agachamento livre': 'Leg press 45° (amplitude curta, lombar colada)',
+      'Levantamento terra romeno (hip hinge)': 'Mesa flexora',
+      'Remada curvada com barra': 'Remada com apoio no peito',
+      'Leg press 45°': 'Cadeira extensora',
+      'Desenvolvimento com halteres': 'Desenvolvimento na máquina (com encosto)',
+      'Elevação de quadril (hip thrust)': 'Ponte de glúteo no chão (sem carga)',
+    },
+    joelho: {
+      'Agachamento livre': 'Agachamento no banco (até onde não dói)',
+      'Leg press 45°': 'Leg press 45° (amplitude parcial, sem dor)',
+    },
+  };
+  // Treino em casa: troca o que depende de máquina ou barra por halteres, elástico ou peso do corpo.
+  const HOME_ALT = {
+    'Supino reto com barra': 'Supino com halteres no chão (floor press)',
+    'Tríceps corda no pulley': 'Tríceps francês com halteres',
+    'Puxada na polia (pegada aberta)': 'Puxada com elástico preso no alto',
+    'Remada curvada com barra': 'Remada curvada com halteres',
+    'Puxada facial (face pull)': 'Face pull com elástico',
+    'Rosca direta com barra': 'Rosca com halteres',
+    'Agachamento livre': 'Agachamento goblet com halter',
+    'Levantamento terra romeno (hip hinge)': 'RDL com halteres',
+    'Leg press 45°': 'Agachamento búlgaro com halteres',
+    'Elevação de quadril (hip thrust)': 'Hip thrust com halter (costas no sofá)',
+    'Mesa flexora': 'Stiff unilateral com halter',
+    'Panturrilha em pé': 'Panturrilha no degrau (unilateral)',
+  };
+  const ALT_TIPS = {
+    'Supino com halteres (pegada neutra)': 'Palmas viradas uma para a outra e cotovelos perto do tronco. Desça só até onde o ombro fica confortável.',
+    'Desenvolvimento landmine (barra no canto)': 'Uma ponta da barra presa no canto; empurre a outra para cima e para a frente, na diagonal. Ângulo mais gentil com o ombro do que empurrar reto acima da cabeça.',
+    'Crucifixo no cabo (amplitude curta)': 'Abra só até sentir o peito alongar, sem puxar a frente do ombro. Controle a volta.',
+    'Elevação lateral no cabo (amplitude curta)': 'Suba até um pouco abaixo da linha do ombro, sem dor. Carga leve e controle.',
+    'Puxada na polia com pegada neutra (triângulo)': 'Palmas frente a frente; puxe o triângulo até o peito levando os cotovelos para baixo.',
+    'Leg press 45° (amplitude curta, lombar colada)': 'Desça só até onde a lombar continua colada no encosto. Se ela descolar, pare antes.',
+    'Mesa flexora': 'Quadril fixo no banco, flexione o joelho controlando a descida. Sem impulso do tronco.',
+    'Remada com apoio no peito': 'Peito apoiado no banco inclinado ou na máquina, sem carga na coluna. Puxe levando os cotovelos para trás.',
+    'Cadeira extensora': 'Costas apoiadas; estenda o joelho até quase travar e desça devagar. Rolo acima do tornozelo.',
+    'Desenvolvimento na máquina (com encosto)': 'Costas coladas no encosto, sem arquear a lombar. Empurre sem travar o cotovelo.',
+    'Ponte de glúteo no chão (sem carga)': 'Deitado, pés no chão perto do quadril. Suba o quadril apertando o glúteo, sem arquear a lombar.',
+    'Agachamento no banco (até onde não dói)': 'Sente e levante de um banco na altura que não provoca dor. Joelhos na direção da ponta dos pés.',
+    'Leg press 45° (amplitude parcial, sem dor)': 'Trabalhe só na faixa do movimento que não dói no joelho. Carga moderada.',
+    'Supino com halteres no chão (floor press)': 'Deitado no chão, desça até o tríceps encostar no piso e empurre. O chão limita a amplitude e protege o ombro.',
+    'Tríceps francês com halteres': 'Um halter seguro com as duas mãos atrás da cabeça, cotovelos apontando para cima. Estenda sem abrir os cotovelos.',
+    'Puxada com elástico preso no alto': 'Elástico preso no alto (porta ou barra). Puxe até o peito levando os cotovelos para baixo e para trás.',
+    'Remada curvada com halteres': 'Tronco inclinado e coluna neutra. Puxe os halteres em direção ao quadril.',
+    'Face pull com elástico': 'Elástico na altura do rosto; puxe abrindo os cotovelos, foco no ombro de trás.',
+    'Rosca com halteres': 'Cotovelos fixos ao lado do corpo, sem balançar. Desça controlado.',
+    'Agachamento goblet com halter': 'Halter junto ao peito; desça entre as pernas mantendo o peito erguido.',
+    'RDL com halteres': 'Joelhos levemente dobrados; leve o quadril para trás com os halteres perto das pernas e a coluna neutra.',
+    'Agachamento búlgaro com halteres': 'Pé de trás apoiado no sofá ou numa cadeira; desça o joelho de trás em direção ao chão com o tronco firme.',
+    'Hip thrust com halter (costas no sofá)': 'Escápulas apoiadas no sofá, halter sobre o quadril. Suba até alinhar joelhos, quadril e ombros.',
+    'Stiff unilateral com halter': 'Numa perna só, leve o quadril para trás e o halter em direção ao chão com a coluna neutra. Apoie a mão na parede se precisar.',
+    'Panturrilha no degrau (unilateral)': 'Uma perna no degrau com o calcanhar para fora. Desça alongando e suba até a ponta do pé.',
+  };
+  const MOBILITY_TESTS = [
+    { id:'ombro', name:'Alcance do ombro atrás das costas',
+      how:'Em pé, leve uma mão por cima do ombro e desça pelas costas; a outra vem por baixo e sobe. Passa se as pontas dos dedos se tocam. O lado é o da mão que vem por cima.',
+      fail:'Ombro com pouca mobilidade: o aquecimento dos treinos de tronco ganhou exercícios para isso. No supino e no desenvolvimento, controle a amplitude.' },
+    { id:'posterior', name:'Elevação da perna estendida',
+      how:'Deitado de barriga para cima, pernas esticadas. Suba uma perna sem dobrar o joelho e sem tirar a outra do chão. Passa se ela chega perto da vertical.',
+      fail:'Posterior de coxa encurtado: o aquecimento dos treinos de perna ganhou exercícios para isso. No terra romeno, desça só até onde a coluna fica neutra.' },
+  ];
+  const MOBILITY_DRILLS = {
+    ombro: [
+      { name:'Deslizamento na parede (wall slide)', dose:'2×10' },
+      { name:'Rotação externa com elástico', dose:'2×15 cada braço' },
+      { name:'Alongamento do dorminhoco (sleeper stretch)', dose:'2×30s cada lado' },
+    ],
+    posterior: [
+      { name:'Alongamento ativo do posterior, deitado com faixa', dose:'2×30s cada perna' },
+      { name:'Bom dia sem carga (good morning)', dose:'2×10' },
+      { name:'Inchworm (caminhada com as mãos)', dose:'6 repetições' },
+    ],
+  };
+
   const GROUP_TARGETS = {
     peito:[10,20], costas:[10,20], ombro:[8,16], biceps:[6,15], triceps:[6,15],
     quadriceps:[10,20], posterior:[8,16], gluteo:[6,12], panturrilha:[8,16], core:[6,12]
@@ -790,7 +940,14 @@
 
   // ============ PERSISTENCE ============
   const STORAGE_KEY = 'vinicius_treino_app_v1';
-  function todayISO(){ const d = new Date(); return d.toISOString().slice(0,10); }
+  // Datas sempre no fuso do aparelho. Antes o app usava UTC: depois das 21h o treino caía no dia
+  // seguinte e as datas apareciam um dia antes na tela.
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function isoFromDate(d){ return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
+  function dateFromISO(iso){ const p = String(iso).slice(0,10).split('-').map(Number); return new Date(p[0], (p[1]||1)-1, p[2]||1); }
+  function todayISO(){ return isoFromDate(new Date()); }
+  function fmtDate(iso){ return dateFromISO(iso).toLocaleDateString('pt-BR'); }
+  function addDaysISO(iso, n){ const d = dateFromISO(iso); d.setDate(d.getDate()+n); return isoFromDate(d); }
   function defaultState(){
     return {
       userName: 'Vinícius',
@@ -807,7 +964,15 @@
       analysisExercise: null,
       activeSession: null,
       substitutions: {},
-      settings: { soundOn: true, restAdjustSec: 0, unit: 'kg' },
+      settings: { soundOn: true, restAdjustSec: 0, unit: 'kg', weeklyGoal: null },
+      // v2 — tudo com padrão, então backups antigos continuam funcionando
+      appVersion: 2,
+      place: 'academia',
+      painDate: null,
+      daySwaps: { date: null, map: {} },
+      mobilityTests: [],
+      birthDate: null,
+      programStart: null,
     };
   }
   let state = defaultState();
@@ -816,6 +981,20 @@
     state.currentIndexByStyle = { ...defaultState().currentIndexByStyle, ...(parsed.currentIndexByStyle||{}) };
     state.settings = { ...defaultState().settings, ...(parsed.settings||{}) };
     state.substitutions = parsed.substitutions || {};
+    state.history = Array.isArray(parsed.history) ? parsed.history : [];
+    state.sessionsLog = Array.isArray(parsed.sessionsLog) ? parsed.sessionsLog : [];
+    state.mobilityTests = Array.isArray(parsed.mobilityTests) ? parsed.mobilityTests : [];
+    state.daySwaps = (parsed.daySwaps && parsed.daySwaps.map && typeof parsed.daySwaps.map === 'object') ? parsed.daySwaps : { date:null, map:{} };
+    normalizeDaily();
+  }
+  // "Hoje" vale só para hoje: dor e trocas do dia zeram quando a data muda.
+  function normalizeDaily(){
+    const t = todayISO();
+    if (state.painDate !== t){ state.painSelected = []; state.painDate = t; }
+    if (!state.daySwaps || state.daySwaps.date !== t) state.daySwaps = { date: t, map: {} };
+    if (!state.programStart && state.sessionsLog.length){
+      state.programStart = state.sessionsLog.map(s => s.date).sort()[0];
+    }
   }
   function loadState(){
     try{
@@ -831,6 +1010,9 @@
     catch(e){ /* storage unavailable, continue in-memory */ }
   }
   loadState();
+  normalizeDaily();
+  state.selectedWeek = programWeek();
+  saveState(); // grava já no formato novo (o antigo continua sendo lido)
 
   let viewIndex = state.currentIndexByStyle[state.activeStyle] || 0;
   const timers = {};
@@ -867,7 +1049,7 @@
     lines.push('');
     lines.push('== AVALIAÇÃO FÍSICA ==');
     lines.push('Peso: ' + last.weight + ' kg | Altura: ' + last.height + ' m | IMC: ' + imc.toFixed(1));
-    lines.push('Última avaliação: ' + new Date(last.date).toLocaleDateString('pt-BR'));
+    lines.push('Última avaliação: ' + fmtDate(last.date));
     lines.push('');
     lines.push('== ESTILO ATUAL: ' + style.label + ' ==');
     lines.push('');
@@ -876,7 +1058,7 @@
     lines.push('');
     lines.push('== VOLUME SEMANAL (últimos 7 dias) ==');
     const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-6);
-    const cutoffISO = cutoff.toISOString().slice(0,10);
+    const cutoffISO = isoFromDate(cutoff);
     const counts = {};
     state.history.forEach(h => { if (h.date >= cutoffISO) counts[h.group] = (counts[h.group]||0)+1; });
     Object.entries(GROUP_TARGETS).forEach(([g,[lo,hi]]) => {
@@ -885,10 +1067,14 @@
     lines.push('');
     lines.push('== ADERÊNCIA (últimos 28 dias, estilo ' + style.label + ') ==');
     const cutoff28 = new Date(); cutoff28.setDate(cutoff28.getDate()-27);
-    const cutoff28ISO = cutoff28.toISOString().slice(0,10);
+    const cutoff28ISO = isoFromDate(cutoff28);
     const count28 = state.sessionsLog.filter(s => s.styleId===style.id && s.date>=cutoff28ISO).length;
-    const expected = EXPECTED_FREQ[style.id]*4;
+    const expected = weeklyGoal()*4;
     lines.push(count28 + ' de ' + expected + ' sessões esperadas (' + Math.min(100,Math.round(count28/expected*100)) + '%)');
+    const ws = weekStats();
+    lines.push('Semana atual: ' + ws.done + ' de ' + ws.goal + ' treinos · sequência de ' + ws.streak + ' semana(s) batendo a meta');
+    const mob = MOBILITY_TESTS.map(t => { const l = latestMobility(t.id); return l ? t.name + ': esquerdo ' + (l.left?'passou':'não passou') + ', direito ' + (l.right?'passou':'não passou') + ' (' + fmtDate(l.date) + ')' : null; }).filter(Boolean);
+    if (mob.length){ lines.push(''); lines.push('== TESTES DE MOBILIDADE =='); mob.forEach(m => lines.push('- ' + m)); }
     lines.push('');
     lines.push('== ÚLTIMAS SESSÕES ==');
     const bySession = {};
@@ -901,7 +1087,7 @@
     state.sessionsLog.forEach(s => { if (s.durationMs) durByKey[s.date+'|'+s.styleId+'|'+s.dayId] = s.durationMs; });
     Object.values(bySession).sort((a,b)=> a.date<b.date?1:-1).slice(0,8).forEach(s => {
       const dur = durByKey[s.date+'|'+s.styleId+'|'+s.dayId];
-      lines.push('- ' + new Date(s.date).toLocaleDateString('pt-BR') + ' · ' + findDayLabel(s.styleId,s.dayId) + ' · ' + Math.round(s.tonnage) + 'kg' + (dur?' · '+Math.round(dur/60000)+'min':''));
+      lines.push('- ' + fmtDate(s.date) +' · ' + findDayLabel(s.styleId,s.dayId) + ' · ' + Math.round(s.tonnage) + 'kg' + (dur?' · '+Math.round(dur/60000)+'min':''));
     });
     if (!Object.values(bySession).length) lines.push('(nenhuma sessão arquivada ainda)');
     lines.push('');
@@ -933,6 +1119,8 @@
         mergeState(parsed);
         viewIndex = state.currentIndexByStyle[state.activeStyle] || 0;
         saveState();
+        state.selectedWeek = programWeek();
+        renderName(); renderPlace(); renderPainPills(); renderMobility(); refreshProgress();
         renderAll(); renderScreenWarn(); renderAssessment(); renderAnalysis(); renderMacros(); renderSettings();
         nutEl.innerHTML=''; nutrition.forEach((n,i)=>addNutritionRow(n,i));
       } catch(err){ alert('Arquivo inválido. Confira se é um backup exportado por este app.'); }
@@ -943,7 +1131,7 @@
 
   // ============ ASSESSMENT ============
   function imcOf(w,h){ return w / (h*h); }
-  function daysBetween(d1, d2){ return Math.round((new Date(d2) - new Date(d1)) / 86400000); }
+  function daysBetween(d1, d2){ return Math.round((dateFromISO(d2) - dateFromISO(d1)) / 86400000); }
 
   function renderAssessment(){
     const last = state.assessments[state.assessments.length - 1];
@@ -954,16 +1142,16 @@
       <div class="stat"><div class="v">${toDisplayWeight(last.weight)} ${u}</div><div class="l">Peso</div></div>
       <div class="stat"><div class="v">${last.height.toFixed(2)} m</div><div class="l">Altura</div></div>
       <div class="stat warn"><div class="v">${imc.toFixed(1)}</div><div class="l">IMC</div></div>
-      <div class="stat"><div class="v">29</div><div class="l">Idade</div></div>
+      <div class="stat"><div class="v">${ageLabel()}</div><div class="l">Idade</div></div>
     `;
 
     document.getElementById('assessWeight').value = toDisplayWeight(last.weight);
     document.getElementById('assessHeight').value = last.height;
     document.querySelectorAll('.assess-form .field label')[0].textContent = 'Peso (' + u + ')';
 
-    const nextDue = new Date(last.date);
+    const nextDue = dateFromISO(last.date);
     nextDue.setDate(nextDue.getDate() + 30);
-    const dNext = daysBetween(todayISO(), nextDue.toISOString().slice(0,10));
+    const dNext = daysBetween(todayISO(), isoFromDate(nextDue));
     const dueBox = document.getElementById('assessDue');
     if (dNext <= 0){
       dueBox.textContent = 'Está na hora da sua avaliação mensal. Meça o peso hoje e registre abaixo.';
@@ -983,7 +1171,7 @@
       const aImc = imcOf(a.weight, a.height);
       const photo = a.photo ? `<img class="ah-photo" src="${a.photo}" alt="foto">` : '';
       return `<div class="ah-row">
-        <span class="ah-date">${new Date(a.date).toLocaleDateString('pt-BR')}</span>
+        <span class="ah-date">${fmtDate(a.date)}</span>
         <span class="ah-main">${toDisplayWeight(a.weight)}${u} · IMC ${aImc.toFixed(1)}${photo}</span>
         <span class="ah-delta">${delta}</span>
       </div>`;
@@ -997,7 +1185,7 @@
   function renderWeightProjection(last, nextDue){
     const box = document.getElementById('weightProjection');
     if (!box) return;
-    const days = daysBetween(last.date, nextDue.toISOString().slice(0,10));
+    const days = daysBetween(last.date, isoFromDate(nextDue));
     const weeks = days/7;
     const dateTxt = nextDue.toLocaleDateString('pt-BR');
     const u = unitLabel();
@@ -1051,6 +1239,21 @@
     document.getElementById('heroName').textContent = state.userName;
     document.getElementById('nameInput').value = state.userName;
     document.title = 'Plano — ' + state.userName;
+    document.getElementById('birthInput').value = state.birthDate || '';
+  }
+  document.getElementById('birthInput').onchange = (e) => {
+    const v = e.target.value;
+    state.birthDate = /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null;
+    saveState();
+    renderAssessment();
+  };
+  // Idade exata a partir da data de nascimento; sem data, mantém o 29 que o app mostrava.
+  function ageLabel(){
+    if (!state.birthDate) return '29';
+    const b = dateFromISO(state.birthDate), t = new Date();
+    let age = t.getFullYear() - b.getFullYear();
+    if (t.getMonth() < b.getMonth() || (t.getMonth() === b.getMonth() && t.getDate() < b.getDate())) age--;
+    return String(age);
   }
   document.getElementById('nameSave').onclick = () => {
     const v = document.getElementById('nameInput').value.trim();
@@ -1067,6 +1270,7 @@
     soundBtn.classList.toggle('on', state.settings.soundOn);
     document.getElementById('restAdjustLabel').textContent = '(' + (state.settings.restAdjustSec >= 0 ? '+' : '') + state.settings.restAdjustSec + 's)';
     document.querySelectorAll('#unitPills .pill').forEach(b => b.classList.toggle('on', b.dataset.u === state.settings.unit));
+    document.getElementById('weeklyGoalLabel').textContent = '(' + weeklyGoal() + ' por semana' + (state.settings.weeklyGoal ? '' : ', padrão do estilo') + ')';
     const notifBtn = document.getElementById('notifBtn');
     if ('Notification' in window && Notification.permission === 'granted'){
       notifBtn.textContent = 'Ativado ✓'; notifBtn.disabled = true;
@@ -1081,6 +1285,13 @@
   document.getElementById('restMinus').onclick = () => { state.settings.restAdjustSec -= 15; saveState(); renderSettings(); renderDayContent(); };
   document.getElementById('restPlus').onclick = () => { state.settings.restAdjustSec += 15; saveState(); renderSettings(); renderDayContent(); };
   document.getElementById('restReset').onclick = () => { state.settings.restAdjustSec = 0; saveState(); renderSettings(); renderDayContent(); };
+  function setWeeklyGoal(v){
+    state.settings.weeklyGoal = v == null ? null : Math.min(7, Math.max(1, v));
+    saveState(); renderSettings(); renderWeekCard(); renderAdherence();
+  }
+  document.getElementById('goalMinus').onclick = () => setWeeklyGoal(weeklyGoal() - 1);
+  document.getElementById('goalPlus').onclick = () => setWeeklyGoal(weeklyGoal() + 1);
+  document.getElementById('goalReset').onclick = () => setWeeklyGoal(null);
   document.querySelectorAll('#unitPills .pill').forEach(b => {
     b.onclick = () => { state.settings.unit = b.dataset.u; saveState(); renderSettings(); renderAssessment(); renderAnalysis(); };
   });
@@ -1092,7 +1303,7 @@
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
     try{
       const last = state.assessments[state.assessments.length-1];
-      const nextDue = new Date(last.date); nextDue.setDate(nextDue.getDate()+30);
+      const nextDue = dateFromISO(last.date); nextDue.setDate(nextDue.getDate()+30);
       if (new Date() >= nextDue) new Notification('Avaliação mensal', { body: 'Está na hora de registrar peso e (se quiser) uma foto no app.' });
       if (state.sessionsLog.length){
         const lastSession = state.sessionsLog[state.sessionsLog.length-1];
@@ -1108,25 +1319,48 @@
     lombar: 'Dor lombar: evite agachamento livre, levantamento terra e remada curvada com carga hoje. Priorize máquinas guiadas e reduza a intensidade. Se persistir, procure um profissional antes de continuar.',
     joelho: 'Dor no joelho: reduza amplitude e carga em agachamento, leg press e afundo. Evite dor aguda durante o movimento. Se persistir, procure um profissional.',
   };
+  function renderPainPills(){
+    document.querySelectorAll('#screenOpts .pill').forEach(b => b.classList.toggle('on', state.painSelected.includes(b.dataset.p)));
+  }
+  // Tirou a dor de um ponto? Desfaz as trocas de hoje feitas por causa dele.
+  function dropDaySwapsFor(joint){
+    if (!state.daySwaps || !state.daySwaps.map) return;
+    Object.keys(state.daySwaps.map).forEach(k => {
+      const v = state.daySwaps.map[k];
+      if (v && typeof v === 'object' && (joint == null || v.joint === joint)) delete state.daySwaps.map[k];
+    });
+  }
   document.querySelectorAll('#screenOpts .pill').forEach(btn => {
     if (state.painSelected.includes(btn.dataset.p)) btn.classList.add('on');
     btn.onclick = () => {
       const p = btn.dataset.p;
+      state.painDate = todayISO();
       if (p === 'nenhuma') {
         state.painSelected = [];
+        dropDaySwapsFor(null);
         document.querySelectorAll('#screenOpts .pill').forEach(b => b.classList.remove('on'));
         btn.classList.add('on');
       } else {
         document.querySelector('#screenOpts .pill[data-p="nenhuma"]').classList.remove('on');
-        if (state.painSelected.includes(p)) { state.painSelected = state.painSelected.filter(x=>x!==p); btn.classList.remove('on'); }
+        if (state.painSelected.includes(p)) { state.painSelected = state.painSelected.filter(x=>x!==p); dropDaySwapsFor(p); btn.classList.remove('on'); }
         else { state.painSelected.push(p); btn.classList.add('on'); }
       }
       saveState();
       renderScreenWarn();
+      renderDayContent();
+      renderLog();
     };
   });
+  document.getElementById('applyJointSwaps').onclick = () => {
+    pendingJointSwaps().forEach(s => setDaySwap(s.exId, s.alt, s.joint));
+    renderScreenWarn(); renderDayContent(); renderLog();
+  };
   function renderScreenWarn(){
     const box = document.getElementById('screenWarn');
+    const applyBtn = document.getElementById('applyJointSwaps');
+    const pending = pendingJointSwaps();
+    applyBtn.style.display = pending.length ? 'block' : 'none';
+    applyBtn.textContent = pending.length === 1 ? 'Trocar hoje 1 exercício que força esse ponto' : 'Trocar hoje ' + pending.length + ' exercícios que forçam esse ponto';
     if (state.painSelected.length === 0) { box.classList.remove('show'); box.innerHTML=''; return; }
     box.innerHTML = state.painSelected.map(p => screenWarnMsgs[p]).join('<br><br>');
     box.classList.add('show');
@@ -1210,12 +1444,12 @@
     return { total, done };
   }
 
-  function commitSessionHistory(style, day, durationMs, fatigue){
+  function commitSessionHistory(style, day, durationMs, fatigue, partial){
     const today = todayISO();
+    const dl = isDeloadNow();
     let any = false;
     day.exercises.forEach((ex, ei) => {
-      const exId = style.id+'-'+day.id+'-'+ei;
-      const effName = state.substitutions[exId] || ex.name;
+      const effName = effectiveExercise(style.id, day.id, ei, ex).name;
       for (let si = 0; si < ex.sets; si++){
         const key = stateKey(day, ei, si);
         const st = state.setState[key];
@@ -1224,13 +1458,17 @@
             date: today, styleId: style.id, dayId: day.id,
             exerciseName: effName, group: ex.group,
             weight: parseFloat(st.weight) || 0, reps: parseInt(st.reps) || 0,
+            ...(dl ? { dl: 1 } : {}),
           });
           any = true;
         }
         delete state.setState[key];
       }
     });
-    if (any) state.sessionsLog.push({ date: today, styleId: style.id, dayId: day.id, label: day.label, durationMs: durationMs || null, fatigue: fatigue != null ? fatigue : null });
+    if (any) state.sessionsLog.push({
+      date: today, styleId: style.id, dayId: day.id, label: day.label, durationMs: durationMs || null, fatigue: fatigue != null ? fatigue : null,
+      ...(partial ? { partial: true } : {}), ...(dl ? { deload: true } : {}), ...(state.place === 'casa' ? { place: 'casa' } : {}),
+    });
   }
 
   function renderDayContent(){
@@ -1272,6 +1510,20 @@
       return;
     }
 
+    if (isDeloadNow()){
+      const dl = document.createElement('div');
+      dl.className = 'fatigue-trend';
+      dl.innerHTML = `🧘 <b>Semana ${programWeek()} do ciclo é deload.</b> As cargas sugeridas já vêm em ~60% e o alvo é RPE 5–6. Treinar leve agora é o que deixa você pesado de novo na semana que vem.`;
+      dayContentEl.appendChild(dl);
+    }
+    const layoff = daysSinceLastSession();
+    if (viewIndex === curIdx && layoff != null && layoff >= 7){
+      const rb = document.createElement('div');
+      rb.className = 'fatigue-trend';
+      rb.innerHTML = `🔄 <b>Faz ${layoff} dias desde o último treino.</b> Hoje volte com ${layoff >= 14 ? '~15%' : '~10%'} menos carga e RPE um ponto abaixo do alvo — as sugestões já vêm ajustadas. Na próxima sessão você retoma o normal.`;
+      dayContentEl.appendChild(rb);
+    }
+
     const { total, done } = dayProgress(day);
     const pct = total ? Math.round((done/total)*100) : 0;
 
@@ -1283,6 +1535,13 @@
       <span class="lbl">${pct}%</span>
     `;
     dayContentEl.appendChild(bar);
+
+    const est = estimateDayMinutes(style, day);
+    const real = avgActualMinutes(style.id, day.id);
+    const durLine = document.createElement('div');
+    durLine.style.cssText = 'margin:-6px 0 12px; font-size:12.5px; color:var(--text-mute); line-height:1.5;';
+    durLine.textContent = '⏱ ~' + est + ' min estimados, contando aquecimento e alongamento' + (real ? ' · sua média real aqui: ' + real + ' min' : '');
+    dayContentEl.appendChild(durLine);
 
     const sessKey = sessionKeyFor(style, day);
     const sessBlock = document.createElement('div');
@@ -1315,7 +1574,12 @@
     dayContentEl.appendChild(warm);
 
     const stretchCat = dayStretchCategory(day);
-    dayContentEl.appendChild(buildStretchCard('pre', '🤸 Mobilidade antes de treinar (dinâmica)', STRETCHES[stretchCat].pre,
+    // Testes de mobilidade que não passaram acrescentam exercícios específicos ao aquecimento.
+    const failedMob = failedMobility();
+    const extraPre = [];
+    if (failedMob.includes('ombro') && stretchCat !== 'inferior') MOBILITY_DRILLS.ombro.forEach(d => extraPre.push({ name: d.name + ' · do teste de ombro', dose: d.dose }));
+    if (failedMob.includes('posterior') && stretchCat !== 'superior') MOBILITY_DRILLS.posterior.forEach(d => extraPre.push({ name: d.name + ' · do teste de posterior', dose: d.dose }));
+    dayContentEl.appendChild(buildStretchCard('pre', '🤸 Mobilidade antes de treinar (dinâmica)' + (extraPre.length ? ' · +' + extraPre.length + ' do seu teste' : ''), [...extraPre, ...STRETCHES[stretchCat].pre],
       'Movimento, não alongamento parado — alongar estático antes de carga pesada reduz a força na hora de levantar.'));
 
     day.exercises.forEach((ex, ei) => {
@@ -1326,7 +1590,10 @@
 
       const restSecs = restSecondsFor(style, ex);
       const exId = style.id+'-'+day.id+'-'+ei;
-      const effName = state.substitutions[exId] || ex.name;
+      const eff = effectiveExercise(style.id, day.id, ei, ex);
+      const effName = eff.name;
+      const sc = parseScheme(ex.reps);
+      const deloadNow = isDeloadNow();
       const warmup = warmupSuggestionFor(day, ei, effName);
       const adapt = exerciseAdaptation(effName);
       const card = document.createElement('div');
@@ -1339,20 +1606,26 @@
         <div class="ex-main">
           <div class="ex-top">
             <div>
-              <div class="ex-name">${effName}${state.substitutions[exId] ? ' <span style="font-size:10px;color:var(--text-mute);font-weight:400;">(no lugar de '+ex.name+')</span>' : ''}</div>
+              <div class="ex-name">${effName}${eff.kind ? ' <span style="font-size:10px;color:var(--text-mute);font-weight:400;">(' + (eff.kind === 'dia' ? 'só hoje, no lugar de ' : eff.kind === 'casa' ? 'versão para casa de ' : 'no lugar de ') + ex.name + ')</span>' : ''}</div>
               <div class="ex-scheme">${ex.sets} séries × ${ex.reps}</div>
               <div class="ex-rpe">RPE alvo: ${ex.rpe} · descanso ${restSecs}s entre séries</div>
             </div>
             <div class="expand-ic">▾</div>
           </div>
-          <div class="ex-tip"><b>Execução:</b> ${state.substitutions[exId] ? 'Substituição sua — confira a execução correta desse exercício por conta própria.' : ex.tip}</div>
+          <div class="ex-tip"><b>Execução:</b> ${eff.kind ? (ALT_TIPS[effName] || 'Substituição sua — confira a execução correta na demonstração abaixo.') : ex.tip}</div>
           <div class="ex-tip" id="warmup-${exId}" style="${warmup ? '' : 'display:none;'}">🔥 <b>Aquecimento sugerido:</b> <span id="warmuptxt-${exId}">${warmup || ''}</span></div>
-          ${adapt ? `<div class="ex-tip adapt-tip adapt-${adapt.action}">${adapt.action==='subir'?'📈':adapt.action==='descer'?'📉':'➡️'} <b>Ajuste sugerido:</b> ${adapt.action==='subir'?'suba para ~'+Math.round(toDisplayWeight(adapt.suggestedWeight))+unitLabel():adapt.action==='descer'?'reduza para ~'+Math.round(toDisplayWeight(adapt.suggestedWeight))+unitLabel():'mantenha ~'+Math.round(toDisplayWeight(adapt.lastWeight))+unitLabel()} — ${adapt.reason}</div>` : ''}
+          ${adapt && deloadNow ? `<div class="ex-tip adapt-tip adapt-descer">🧘 <b>Deload:</b> use ~${fmtNum(toDisplayWeight(roundLoad(adapt.lastWeight*0.6)))}${unitLabel()} (60% de ${fmtNum(toDisplayWeight(adapt.lastWeight))}${unitLabel()}) e pare em RPE 5–6.</div>` : ''}
+          ${adapt && !deloadNow ? `<div class="ex-tip adapt-tip adapt-${adapt.action}">${adapt.action==='subir'?'📈':adapt.action==='descer'?'📉':'➡️'} <b>Ajuste sugerido:</b> ${adapt.action==='subir'?'suba para ~'+Math.round(toDisplayWeight(adapt.suggestedWeight))+unitLabel():adapt.action==='descer'?'reduza para ~'+Math.round(toDisplayWeight(adapt.suggestedWeight))+unitLabel():'mantenha ~'+Math.round(toDisplayWeight(adapt.lastWeight))+unitLabel()} — ${adapt.reason}</div>` : ''}
           ${ex.supersetWith ? `<div class="ex-tip">⚡ <b>Superset:</b> encadeie com "${ex.supersetWith}" — uma série de cada, sem descanso entre os dois. Descanse só depois do par, para economizar tempo de sessão.</div>` : ''}
-          <button class="swap-btn" data-exid="${exId}">🔁 ${state.substitutions[exId] ? 'Trocar de volta / mudar' : 'Sem esse equipamento hoje? Trocar'}</button>
+          ${jointTipHtml(ex, eff)}
+          <button class="swap-btn" data-exid="${exId}">🔁 ${state.substitutions[exId] ? 'Trocar de volta / mudar' : 'Sem esse equipamento hoje? Trocar'}</button><a class="demo-link" href="${demoUrl(effName)}" target="_blank" rel="noopener">▶ Ver demonstração</a>
           <div class="swap-picker" id="swappicker-${exId}"></div>
         </div>
       `;
+      const jSwap = head.querySelector('.joint-swap');
+      if (jSwap) jSwap.onclick = (e) => { e.stopPropagation(); setDaySwap(exId, jSwap.dataset.alt, jSwap.dataset.joint); renderScreenWarn(); renderDayContent(); renderLog(); };
+      const jUndo = head.querySelector('.joint-undo');
+      if (jUndo) jUndo.onclick = (e) => { e.stopPropagation(); clearDaySwap(exId); renderScreenWarn(); renderDayContent(); renderLog(); };
       head.querySelector('.swap-btn').onclick = (e) => {
         e.stopPropagation();
         const picker = document.getElementById('swappicker-'+exId);
@@ -1388,14 +1661,18 @@
         if (!state.setState[key]) state.setState[key] = { checked:false, weight:'', reps:'' };
         const st = state.setState[key];
         const dispW = st.weight === '' ? '' : toDisplayWeight(parseFloat(st.weight) || 0);
+        // Meta da série já preenchida em cinza: se fez igual, é só tocar no ✓.
+        const tgt = setTargetFor(effName, ex, si, adapt);
+        const phW = tgt.weightKg != null ? toDisplayWeight(tgt.weightKg) : '';
+        const phR = tgt.reps != null ? tgt.reps : '';
 
         const row = document.createElement('div');
         row.className = 'setrow';
         row.innerHTML = `
           <div class="snum">${si+1}</div>
-          <div class="field"><label>Carga (${unitLabel()})</label><input type="number" inputmode="decimal" min="0" value="${dispW}"></div>
-          <div class="field"><label>Reps</label><input type="number" inputmode="numeric" min="0" value="${st.reps}"></div>
-          <button class="setcheck ${st.checked ? 'checked' : ''}">✓</button>
+          <div class="field"><label>Carga (${unitLabel()})</label><input type="number" inputmode="decimal" min="0" value="${dispW}" placeholder="${phW}"></div>
+          <div class="field"><label>${sc.timed ? 'Segundos' : 'Reps'}</label><input type="number" inputmode="numeric" min="0" value="${st.reps}" placeholder="${phR}"></div>
+          <button class="setcheck ${st.checked ? 'checked' : ''}" aria-label="Marcar série ${si+1} como feita">✓</button>
         `;
         const [weightInput, repsInput] = row.querySelectorAll('input');
         weightInput.oninput = () => {
@@ -1412,6 +1689,11 @@
         };
         repsInput.oninput = () => { st.reps = repsInput.value; saveState(); };
         row.querySelector('.setcheck').onclick = () => {
+          if (!st.checked){
+            // 1 toque: campo vazio é registrado com a meta mostrada (dá para corrigir depois).
+            if (st.weight === '' && tgt.weightKg != null) st.weight = String(tgt.weightKg);
+            if (st.reps === '' && tgt.reps != null) st.reps = String(tgt.reps);
+          }
           st.checked = !st.checked;
           saveState();
           if (st.checked){ openCards.add(exId); startRestTimer(exId, restSecs, effName); }
@@ -1419,6 +1701,27 @@
           renderLog();
         };
         body.appendChild(row);
+      }
+
+      // Isometria (prancha etc.): cronômetro do tempo-alvo; "cada lado" ganha 5 s para trocar de lado.
+      if (sc.timed){
+        const nextSi = [...Array(ex.sets)].findIndex((_, si) => { const s2 = state.setState[stateKey(day, ei, si)]; return !(s2 && s2.checked); });
+        if (nextSi >= 0){
+          const secs = sc.max || 30;
+          const holdBtn = document.createElement('button');
+          holdBtn.className = 'rest-btn hold-btn';
+          holdBtn.textContent = '▶ Cronometrar a série ' + (nextSi+1) + ': ' + secs + 's' + (sc.perSide ? ' cada lado, com 5s para trocar' : '');
+          holdBtn.onclick = () => startHold(effName, secs, sc.perSide, () => {
+            const k = stateKey(day, ei, nextSi);
+            const s2 = state.setState[k] || (state.setState[k] = { checked:false, weight:'', reps:'' });
+            s2.reps = String(secs); s2.checked = true;
+            saveState();
+            openCards.add(exId);
+            startRestTimer(exId, restSecs, effName);
+            renderDayContent(); renderLog();
+          });
+          body.appendChild(holdBtn);
+        }
       }
 
       const timerWrap = document.createElement('div');
@@ -1442,6 +1745,13 @@
 
     dayContentEl.appendChild(buildStretchCard('pos', '🧘 Alongamento pós-treino (estático)', STRETCHES[stretchCat].pos,
       'Agora sim, segure cada posição sem forçar até doer — o músculo já está quente, é o momento certo para ganhar amplitude.'));
+
+    if (state.macroGoal === 'emagrecimento'){
+      const cardio = document.createElement('div');
+      cardio.className = 'warmup';
+      cardio.innerHTML = `<span>🏃</span><span><b>Cardio do objetivo de emagrecer:</b> 15–25 min em ritmo moderado (dá para conversar, mas não para cantar) na esteira inclinada, bike ou elíptico. A OMS recomenda de 150 a 300 min de atividade aeróbica moderada por semana.</span>`;
+      dayContentEl.appendChild(cardio);
+    }
 
     if (viewIndex === curIdx){
       const wrap = document.createElement('div');
@@ -1483,7 +1793,9 @@
       if (workoutClockTimer) { clearInterval(workoutClockTimer); workoutClockTimer = null; }
     }
     const curIdx = state.currentIndexByStyle[style.id] || 0;
-    commitSessionHistory(style, day, durationMs, fatigue);
+    const prog = dayProgress(day);
+    if (!state.programStart && prog.done > 0) state.programStart = todayISO();
+    commitSessionHistory(style, day, durationMs, fatigue, prog.done < prog.total);
     state.currentIndexByStyle[style.id] = (curIdx + 1) % style.sequence.length;
     viewIndex = state.currentIndexByStyle[style.id];
     saveState();
@@ -1546,6 +1858,7 @@
     }
   }
   document.getElementById('floatRestSkip').onclick = () => {
+    if (activeFloatTimerId === '__hold__'){ stopHold(); document.getElementById('floatRest').classList.remove('show'); return; }
     const t = timers[activeFloatTimerId];
     if (!t) return;
     if (t.intervalId) clearInterval(t.intervalId);
@@ -1576,7 +1889,13 @@
     updateTimerDOM(id);
   }
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) Object.keys(timers).forEach(tickRestTimer);
+    if (document.hidden) return;
+    Object.keys(timers).forEach(tickRestTimer);
+    if (hold) tickHold();
+    // Virou o dia com o app aberto: zera dor e trocas de ontem.
+    const before = state.painDate;
+    normalizeDaily();
+    if (before !== state.painDate){ saveState(); renderPainPills(); renderScreenWarn(); renderAll(); }
   });
 
   // ============ IMAGE LIGHTBOX ============
@@ -1615,11 +1934,12 @@
     style.sequence.forEach(day => {
       if (day.type !== 'treino') return;
       day.exercises.forEach((ex, ei) => {
+        const effName = effectiveExercise(style.id, day.id, ei, ex).name;
         for (let si = 0; si < ex.sets; si++){
           const st = state.setState[stateKey(day, ei, si)];
           if (st && st.checked){
             const wDisp = st.weight ? toDisplayWeight(parseFloat(st.weight)) : '—';
-            entries.push(`<div class="logrow"><span class="ln">${ex.name} · série ${si+1}</span><span>${wDisp}${st.weight?unitLabel():''} × ${st.reps || '—'}</span></div>`);
+            entries.push(`<div class="logrow"><span class="ln">${effName} · série ${si+1}</span><span>${wDisp}${st.weight?unitLabel():''} × ${st.reps || '—'}</span></div>`);
           }
         }
       });
@@ -1643,6 +1963,8 @@
     renderDayContent();
     renderLog();
     renderLegend();
+    renderWeekCard();
+    renderScreenWarn();
   }
 
   // ============ ANALYSIS ============
@@ -1662,7 +1984,7 @@
 
   function sessionsForExercise(name){
     const byDate = {};
-    state.history.filter(h => h.exerciseName === name).forEach(h => {
+    state.history.filter(h => h.exerciseName === name && !h.dl).forEach(h => {
       const rm = estimate1RM(h.weight, h.reps);
       if (!byDate[h.date] || rm > byDate[h.date].rm) byDate[h.date] = { date: h.date, rm, weight: h.weight, reps: h.reps };
     });
@@ -1708,7 +2030,7 @@
     const m = def.reps.match(/(\d+)\s*[–-]\s*(\d+)/);
     if (!m) return null; // skip time-based holds (plank etc.)
     const targetMin = parseInt(m[1]), targetMax = parseInt(m[2]);
-    const entries = state.history.filter(h => h.exerciseName === name);
+    const entries = state.history.filter(h => h.exerciseName === name && !h.dl);
     if (!entries.length) return null;
     const last = entries.reduce((a,b) => a.date > b.date ? a : b);
     const lastSets = entries.filter(h => h.date === last.date && h.styleId === last.styleId && h.dayId === last.dayId && h.exerciseName === name);
@@ -1737,6 +2059,14 @@
       else if (belowMin){ action='descer'; mult=0.90; reason='Esforço extremo e nem o mínimo de reps saiu — sinal de fadiga acumulada, reduza a carga.'; }
       else { action='manter'; mult=0.97; reason='Esforço alto mesmo dentro da faixa — mantenha ou reduza levemente, priorize recuperar.'; }
     }
+    // Voltando de pausa: começa abaixo e retoma a progressão nas sessões seguintes.
+    const layoff = daysSinceLastSession();
+    if (layoff != null && layoff >= 7){
+      const f = layoff >= 14 ? 0.85 : 0.9;
+      mult = Math.min(mult, 1) * f;
+      action = 'descer';
+      reason = 'Volta depois de ' + layoff + ' dias parado: comece ~' + Math.round((1-f)*100) + '% abaixo e retome a progressão nas próximas sessões.';
+    }
     return { lastWeight, suggestedWeight: Math.max(0, lastWeight*mult), action, reason, fatigue, targetMin, targetMax, lastDate: last.date };
   }
   function recentFatigueTrend(styleId){
@@ -1755,7 +2085,7 @@
     const m = def.reps.match(/(\d+)\s*[–-]\s*(\d+)/);
     if (!m) return null; // skip time-based holds (plank etc.) — no rep target to compare against
     const targetMax = parseInt(m[2]);
-    const entries = state.history.filter(h => h.exerciseName === name);
+    const entries = state.history.filter(h => h.exerciseName === name && !h.dl);
     if (!entries.length) return null;
     const lastDate = entries.reduce((a,b) => a.date > b.date ? a : b).date;
     const lastSets = entries.filter(h => h.date === lastDate);
@@ -1767,7 +2097,7 @@
       for (let i=1;i<dates.length;i++) total += daysBetween(dates[i-1], dates[i]);
       avgGap = Math.max(1, Math.round(total/(dates.length-1)));
     }
-    const nextDate = new Date(lastDate);
+    const nextDate = dateFromISO(lastDate);
     nextDate.setDate(nextDate.getDate() + avgGap);
     return { ready, nextDate, targetMax, lastDate };
   }
@@ -1796,7 +2126,7 @@
       ${dots}${yTop}${yBot}${xFirst}${xLast}
     </svg>`;
   }
-  function fmtDateShort(iso){ const d = new Date(iso); return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}); }
+  function fmtDateShort(iso){ const d = dateFromISO(iso);return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}); }
 
   const exSelectEl = document.getElementById('exSelect');
   function populateExSelect(){
@@ -1837,7 +2167,7 @@
       if (!fc){
         fcBox.innerHTML = '';
       } else if (fc.ready){
-        fcBox.innerHTML = `<div class="load-note" style="border-color:var(--green);background:#0d2018;color:#a9e0c3;">✓ Bateu ${fc.targetMax} reps em todas as séries na última sessão (${new Date(fc.lastDate).toLocaleDateString('pt-BR')}). Pronto pra subir ~5% de carga no próximo treino — previsto para ${fc.nextDate.toLocaleDateString('pt-BR')}.</div>`;
+        fcBox.innerHTML = `<div class="load-note" style="border-color:var(--green);background:#0d2018;color:#a9e0c3;">✓ Bateu ${fc.targetMax} reps em todas as séries na última sessão (${fmtDate(fc.lastDate)}). Pronto pra subir ~5% de carga no próximo treino — previsto para ${fc.nextDate.toLocaleDateString('pt-BR')}.</div>`;
       } else {
         fcBox.innerHTML = `<div class="load-note">Ainda não bateu ${fc.targetMax} reps em todas as séries. Mantenha a carga atual até conseguir — próxima sessão prevista para ${fc.nextDate.toLocaleDateString('pt-BR')}.</div>`;
       }
@@ -1862,7 +2192,7 @@
 
   function renderVolume(){
     const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-6);
-    const cutoffISO = cutoff.toISOString().slice(0,10);
+    const cutoffISO = isoFromDate(cutoff);
     const counts = {};
     state.history.forEach(h => { if (h.date >= cutoffISO) counts[h.group] = (counts[h.group]||0)+1; });
     const box = document.getElementById('volumeList');
@@ -1916,9 +2246,9 @@
     const style = currentStyle();
     document.getElementById('adhStyleName').textContent = style.label;
     const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-27);
-    const cutoffISO = cutoff.toISOString().slice(0,10);
+    const cutoffISO = isoFromDate(cutoff);
     const count = state.sessionsLog.filter(s => s.styleId === style.id && s.date >= cutoffISO).length;
-    const expected = EXPECTED_FREQ[style.id] * 4;
+    const expected = weeklyGoal() * 4;
     const pct = Math.min(100, Math.round((count/expected)*100));
     const r = 30, c = 2*Math.PI*r;
     const box = document.getElementById('adherenceBox');
@@ -1930,7 +2260,7 @@
             stroke-dasharray="${c}" stroke-dashoffset="${c - (pct/100)*c}" stroke-linecap="round" transform="rotate(-90 38 38)"/>
           <text x="38" y="43" text-anchor="middle" font-size="15" font-weight="700" fill="var(--text)" font-family="Bebas Neue">${pct}%</text>
         </svg>
-        <div class="adh-text">${count} de ${expected} sessões esperadas nos últimos 28 dias para o estilo <b style="color:var(--text)">${style.label}</b>.</div>
+        <div class="adh-text">${count} de ${expected} sessões esperadas nos últimos 28 dias para o estilo <b style="color:var(--text)">${style.label}</b> (meta de ${weeklyGoal()} por semana).</div>
       </div>
     `;
   }
@@ -1994,7 +2324,7 @@
     const fatigue = fatigueAnalysisForSession(last);
     const verdict = nextSessionAdaptation(fatigue);
 
-    const metaHtml = `<div class="fatigue-meta">${new Date(last.date).toLocaleDateString('pt-BR')} · ${findDayLabel(last.styleId,last.dayId)}${last.durationMs ? ' · ' + Math.round(last.durationMs/60000) + 'min' : ''}</div>`;
+    const metaHtml = `<div class="fatigue-meta">${fmtDate(last.date)} · ${findDayLabel(last.styleId,last.dayId)}${last.durationMs ? ' · ' + Math.round(last.durationMs/60000) + 'min' : ''}</div>`;
     const verdictHtml = `<div class="fatigue-verdict ${verdict.level}">${verdict.text}</div>`;
     const itemsHtml = fatigue.perExercise.map(e => {
       const label = e.dropPct === null ? 'série única' : `${e.first}→${e.last} reps (${e.dropPct >= 0 ? '-' : '+'}${Math.abs(e.dropPct)}%)`;
@@ -2015,6 +2345,7 @@
     renderFatigue();
     renderVolume();
     renderTonnage();
+    renderHistoryList();
     renderAdherence();
   }
 
@@ -2102,20 +2433,24 @@
   }
 
   const wkEl = document.getElementById('weekpicker');
-  const currentWeek = 1;
-  for (let w = 1; w <= 12; w++){
-    const btn = document.createElement('div');
-    const isDL = deloadWeeks.includes(w);
-    btn.className = 'wk' + (w === currentWeek ? ' current' : '') + (w === state.selectedWeek ? ' selected' : '') + (isDL ? ' deload' : '');
-    btn.innerHTML = w + (isDL ? '<span class="dl">DL</span>' : '');
-    btn.dataset.w = w;
-    btn.onclick = () => {
-      state.selectedWeek = w;
-      saveState();
-      [...wkEl.children].forEach(c => c.classList.toggle('selected', Number(c.dataset.w) === w));
-      renderPhases();
-    };
-    wkEl.appendChild(btn);
+  // A semana atual vem da data de início do ciclo (antes ficava travada na semana 1).
+  function renderWeekPicker(){
+    const currentWeek = programWeek();
+    wkEl.innerHTML = '';
+    for (let w = 1; w <= 12; w++){
+      const btn = document.createElement('div');
+      const isDL = deloadWeeks.includes(w);
+      btn.className = 'wk' + (w === currentWeek ? ' current' : '') + (w === state.selectedWeek ? ' selected' : '') + (isDL ? ' deload' : '');
+      btn.innerHTML = w + (isDL ? '<span class="dl">DL</span>' : '');
+      btn.dataset.w = w;
+      btn.onclick = () => {
+        state.selectedWeek = w;
+        saveState();
+        [...wkEl.children].forEach(c => c.classList.toggle('selected', Number(c.dataset.w) === w));
+        renderPhases();
+      };
+      wkEl.appendChild(btn);
+    }
   }
 
   // ============ METHOD CARD TOGGLE ============
@@ -2127,6 +2462,303 @@
     toggle.textContent = open ? 'ver critérios ▾' : 'ocultar ▴';
   };
 
+  // ============ v2 — funções das melhorias ============
+  function fmtNum(v){ return String(v).replace('.', ','); }
+  function roundLoad(kg){
+    if (state.settings.unit === 'lb') return Math.round(kg * 2.20462) / 2.20462; // passos de 1 lb
+    return Math.round(kg * 2) / 2; // passos de 0,5 kg
+  }
+  function demoUrl(name){ return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(name + ' execução correta'); }
+
+  // Qual exercício vale hoje nesse lugar do treino: troca do dia (dor) > versão de casa > troca fixa > original.
+  function effectiveExercise(styleId, dayId, ei, ex){
+    const exId = styleId + '-' + dayId + '-' + ei;
+    const map = (state.daySwaps && state.daySwaps.date === todayISO() && state.daySwaps.map) || {};
+    const v = map[exId];
+    if (v) return { name: typeof v === 'string' ? v : v.name, kind: 'dia', exId };
+    if (state.place === 'casa' && HOME_ALT[ex.name]) return { name: HOME_ALT[ex.name], kind: 'casa', exId };
+    if (state.substitutions[exId]) return { name: state.substitutions[exId], kind: 'fixa', exId };
+    return { name: ex.name, kind: null, exId };
+  }
+  function setDaySwap(exId, name, joint){
+    const t = todayISO();
+    if (!state.daySwaps || state.daySwaps.date !== t) state.daySwaps = { date: t, map: {} };
+    state.daySwaps.map[exId] = { name, joint: joint || null };
+    saveState();
+  }
+  function clearDaySwap(exId){
+    if (state.daySwaps && state.daySwaps.map) delete state.daySwaps.map[exId];
+    saveState();
+  }
+  // Trocas amigáveis ainda não aplicadas no treino que está na tela.
+  function pendingJointSwaps(){
+    const style = currentStyle();
+    const day = style.sequence[viewIndex];
+    if (!day || day.type !== 'treino') return [];
+    const out = [];
+    day.exercises.forEach((ex, ei) => {
+      const eff = effectiveExercise(style.id, day.id, ei, ex);
+      if (eff.kind === 'dia') return;
+      for (const j of (state.painSelected || [])){
+        const alt = JOINT_SAFE_ALT[j] && JOINT_SAFE_ALT[j][ex.name];
+        if (alt && (JOINT_STRESS[j] || []).includes(ex.name)){ out.push({ exId: eff.exId, alt, joint: j }); break; }
+      }
+    });
+    return out;
+  }
+  function jointTipHtml(ex, eff){
+    if (eff.kind === 'dia') return `<div class="ex-tip joint-tip ok">✓ Versão mais gentil aplicada só para hoje. <button class="joint-undo">Desfazer</button></div>`;
+    const hits = (state.painSelected || []).filter(j => (JOINT_STRESS[j] || []).includes(ex.name));
+    if (!hits.length) return '';
+    const j = hits[0];
+    const alt = JOINT_SAFE_ALT[j] && JOINT_SAFE_ALT[j][ex.name];
+    return `<div class="ex-tip joint-tip">⚠ <b>${hits.map(h => JOINT_LABEL[h]).join(' e ')} com dor hoje:</b> RPE máximo 6 e só a amplitude que não dói.${alt ? `<br><button class="joint-swap" data-alt="${alt.replace(/"/g, '&quot;')}" data-joint="${j}">Trocar hoje por ${alt}</button>` : ''}</div>`;
+  }
+
+  function parseScheme(reps){
+    const s = String(reps || '');
+    const timed = /\d\s*s\b/.test(s);
+    const perSide = /cada (lado|perna|braço)/.test(s);
+    const m = s.match(/(\d+)\s*[–-]\s*(\d+)/);
+    const one = s.match(/(\d+)/);
+    const min = m ? parseInt(m[1]) : (one ? parseInt(one[1]) : null);
+    const max = m ? parseInt(m[2]) : min;
+    return { min, max, timed, perSide };
+  }
+  function lastSessionSets(name){
+    const entries = state.history.filter(h => h.exerciseName === name && !h.dl);
+    if (!entries.length) return [];
+    const lastDate = entries.reduce((a, b) => a.date > b.date ? a : b).date;
+    return entries.filter(h => h.date === lastDate);
+  }
+  // Meta de cada série: carga e reps da última vez + o ajuste por desempenho e esforço.
+  function setTargetFor(name, ex, si, adapt){
+    const sc = parseScheme(ex.reps);
+    const last = lastSessionSets(name);
+    const lastSet = last.length ? last[Math.min(si, last.length - 1)] : null;
+    let w = null;
+    if (adapt) w = adapt.action === 'manter' ? adapt.lastWeight : adapt.suggestedWeight;
+    else if (lastSet && lastSet.weight) w = lastSet.weight;
+    let r;
+    if (sc.timed) r = sc.max;
+    else if (adapt && adapt.action !== 'manter') r = sc.min;
+    else if (lastSet && lastSet.reps) r = Math.min(sc.max || lastSet.reps + 1, lastSet.reps + 1); // dupla progressão: +1 rep
+    else r = sc.min;
+    if (isDeloadNow()){ if (w) w = w * 0.6; if (!sc.timed) r = sc.min; }
+    w = w ? roundLoad(w) : null;
+    return { weightKg: w, reps: r, timed: sc.timed, perSide: sc.perSide };
+  }
+
+  // Duração estimada: séries × (execução + descanso), supersets dividem o descanso, mais aquecimento,
+  // mobilidade, alongamento e ~1 min de arrumação por exercício.
+  function estimateDayMinutes(style, day){
+    let sec = (5 + 5 + 6) * 60;
+    day.exercises.forEach(ex => {
+      const sc = parseScheme(ex.reps);
+      const work = sc.timed ? (sc.max || 30) * (sc.perSide ? 2 : 1) + (sc.perSide ? 5 : 0) : Math.max(25, (sc.max || 10) * 4);
+      const rest = restSecondsFor(style, ex) * (ex.supersetWith ? 0.5 : 1);
+      sec += ex.sets * (work + rest) + 60 + (ex.tag === 'orange' ? 90 : 0);
+    });
+    return Math.round(sec / 60);
+  }
+  function avgActualMinutes(styleId, dayId){
+    const ds = state.sessionsLog.filter(s => s.styleId === styleId && s.dayId === dayId && s.durationMs).slice(-3);
+    if (!ds.length) return null;
+    return Math.round(ds.reduce((a, s) => a + s.durationMs, 0) / ds.length / 60000);
+  }
+
+  // Ciclo de 12 semanas contado a partir do primeiro treino (deload nas semanas 4, 8 e 12).
+  function programWeek(){
+    if (!state.programStart) return 1;
+    const d = daysBetween(state.programStart, todayISO());
+    if (d < 0) return 1;
+    return (Math.floor(d / 7) % 12) + 1;
+  }
+  function isDeloadNow(){ return !!state.programStart && deloadWeeks.includes(programWeek()); }
+  function daysSinceLastSession(){
+    if (!state.sessionsLog.length) return null;
+    const last = state.sessionsLog.map(s => s.date).sort().pop();
+    return daysBetween(last, todayISO());
+  }
+
+  function weekStartISO(iso){ const d = dateFromISO(iso); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return isoFromDate(d); } // semana começa na segunda
+  function weeklyGoal(){ return state.settings.weeklyGoal || EXPECTED_FREQ[state.activeStyle] || 3; }
+  function weekStats(){
+    const goal = weeklyGoal();
+    const counts = {};
+    state.sessionsLog.forEach(s => { const w = weekStartISO(s.date); counts[w] = (counts[w] || 0) + 1; });
+    const thisWeek = weekStartISO(todayISO());
+    const done = counts[thisWeek] || 0;
+    let streak = 0;
+    let w = done >= goal ? thisWeek : addDaysISO(thisWeek, -7);
+    while ((counts[w] || 0) >= goal){ streak++; w = addDaysISO(w, -7); }
+    let best = 0, run = 0, prevOk = null;
+    Object.keys(counts).sort().forEach(wk => {
+      if (counts[wk] >= goal){ run = (prevOk && addDaysISO(prevOk, 7) === wk) ? run + 1 : 1; prevOk = wk; best = Math.max(best, run); }
+      else { run = 0; prevOk = null; }
+    });
+    return { goal, done, streak, best: Math.max(best, streak), total: state.sessionsLog.length };
+  }
+  function renderWeekCard(){
+    const el = document.getElementById('weekCard');
+    if (!el) return;
+    const s = weekStats();
+    const pct = Math.min(100, Math.round(s.done / s.goal * 100));
+    const r = 26, c = 2 * Math.PI * r;
+    const next = [10, 25, 50, 100, 200, 365].find(m => m > s.total);
+    const left = s.goal - s.done;
+    el.innerHTML = `
+      <div class="adh-wrap">
+        <svg class="adh-ring" width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="7"/>
+          <circle cx="32" cy="32" r="${r}" fill="none" stroke="var(--green)" stroke-width="7" stroke-dasharray="${c}" stroke-dashoffset="${c - (pct/100)*c}" stroke-linecap="round" transform="rotate(-90 32 32)"/>
+          <text x="32" y="38" text-anchor="middle" font-size="17" fill="var(--text)" font-family="Bebas Neue">${s.done}/${s.goal}</text>
+        </svg>
+        <div class="adh-text">
+          <div class="wk-title">Meta da semana</div>
+          ${left <= 0 ? 'Meta batida ✓' : 'Faltam ' + left + ' treino' + (left === 1 ? '' : 's') + ' até domingo'} · 🔥 ${s.streak} semana${s.streak === 1 ? '' : 's'} seguida${s.streak === 1 ? '' : 's'}${s.best > s.streak ? ' (recorde: ' + s.best + ')' : ''}<br>
+          ${s.total} treino${s.total === 1 ? '' : 's'} no total${next ? ' · próximo marco: ' + next : ''}
+        </div>
+      </div>`;
+  }
+
+  function renderPlace(){
+    document.querySelectorAll('#placeOpts .pill').forEach(b => b.classList.toggle('on', b.dataset.place === state.place));
+  }
+  document.querySelectorAll('#placeOpts .pill').forEach(b => {
+    b.onclick = () => { state.place = b.dataset.place; saveState(); renderPlace(); renderDayContent(); renderLog(); renderScreenWarn(); };
+  });
+
+  function latestMobility(testId){
+    const r = (state.mobilityTests || []).filter(t => t.testId === testId);
+    return r.length ? r[r.length - 1] : null;
+  }
+  function failedMobility(){
+    return MOBILITY_TESTS.filter(t => { const l = latestMobility(t.id); return l && (l.left === false || l.right === false); }).map(t => t.id);
+  }
+  let mobilityDraft = {};
+  function renderMobility(){
+    const box = document.getElementById('mobilityBody');
+    if (!box) return;
+    box.innerHTML = MOBILITY_TESTS.map(t => {
+      const last = latestMobility(t.id);
+      const d = mobilityDraft[t.id] || {};
+      const btns = side => [['passou', true], ['não passou', false]].map(([lbl, v]) =>
+        `<button class="pill blue ${d[side] === v ? 'on' : ''}" data-test="${t.id}" data-side="${side}" data-v="${v}">${lbl}</button>`).join('');
+      const due = last && daysBetween(last.date, todayISO()) >= 28;
+      const lastTxt = last ? `Último (${fmtDate(last.date)}): esquerdo ${last.left ? '✓' : '✗'} · direito ${last.right ? '✓' : '✗'}${due ? ' · hora de refazer' : ''}` : 'Ainda não feito.';
+      return `<div class="mob-test">
+        <div class="rt">${t.name}</div>
+        <div class="rd">${t.how}</div>
+        <div class="mob-row"><span>Esquerdo</span><div class="screen-opts">${btns('left')}</div></div>
+        <div class="mob-row"><span>Direito</span><div class="screen-opts">${btns('right')}</div></div>
+        <div class="cardsub" style="margin:8px 0 0;">${lastTxt}</div>
+        ${last && (last.left === false || last.right === false) ? `<div class="ex-tip" style="margin-top:6px;">${t.fail}</div>` : ''}
+      </div>`;
+    }).join('') + `<button class="assess-save" id="mobilitySave">Salvar testes de hoje</button>`;
+    box.querySelectorAll('[data-test]').forEach(b => {
+      b.onclick = () => {
+        const id = b.dataset.test;
+        mobilityDraft[id] = mobilityDraft[id] || {};
+        mobilityDraft[id][b.dataset.side] = b.dataset.v === 'true';
+        renderMobility();
+      };
+    });
+    document.getElementById('mobilitySave').onclick = () => {
+      let saved = 0;
+      MOBILITY_TESTS.forEach(t => {
+        const d = mobilityDraft[t.id];
+        if (d && typeof d.left === 'boolean' && typeof d.right === 'boolean'){
+          state.mobilityTests.push({ date: todayISO(), testId: t.id, left: d.left, right: d.right });
+          saved++;
+        }
+      });
+      if (!saved){ alert('Marque os dois lados de pelo menos um teste antes de salvar.'); return; }
+      mobilityDraft = {};
+      saveState(); renderMobility(); renderDayContent();
+    };
+  }
+
+  function renderHistoryList(){
+    const box = document.getElementById('historyList');
+    if (!box) return;
+    const sessions = [...state.sessionsLog].reverse().slice(0, 12);
+    if (!sessions.length){ box.innerHTML = '<div class="logempty">Nenhuma sessão arquivada ainda. Finalize um treino para ele aparecer aqui.</div>'; return; }
+    const u = unitLabel();
+    box.innerHTML = sessions.map(s => {
+      const sets = state.history.filter(h => h.date === s.date && h.styleId === s.styleId && h.dayId === s.dayId);
+      const byEx = [];
+      sets.forEach(h => { let g = byEx.find(x => x.name === h.exerciseName); if (!g){ g = { name: h.exerciseName, sets: [] }; byEx.push(g); } g.sets.push(h); });
+      const lines = byEx.map(g => `<div class="hist-ex"><span class="sn">${g.name}</span><span class="sd">${g.sets.map(h => (h.weight ? fmtNum(toDisplayWeight(h.weight)) + u + ' × ' : '') + h.reps).join(' · ')}</span></div>`).join('');
+      const tags = [s.partial ? 'parcial' : '', s.deload ? 'deload' : '', s.place === 'casa' ? 'em casa' : ''].filter(Boolean).join(' · ');
+      return `<details class="hist-session"><summary><span>${fmtDate(s.date)} · ${findDayLabel(s.styleId, s.dayId)}</span><span class="hist-meta">${sets.length} séries${s.durationMs ? ' · ' + Math.round(s.durationMs / 60000) + ' min' : ''}${tags ? ' · ' + tags : ''}</span></summary>${lines || '<div class="logempty">Sem séries registradas.</div>'}</details>`;
+    }).join('');
+  }
+
+  function renderCycleCard(){
+    const el = document.getElementById('cycleCard');
+    if (!el) return;
+    const w = programWeek();
+    el.innerHTML = `
+      <h3>Você está na semana ${w} de 12</h3>
+      <div class="cardsub">${state.programStart ? 'Ciclo contado desde ' + fmtDate(state.programStart) + '.' : 'O ciclo começa no seu primeiro treino finalizado.'}${state.programStart && deloadWeeks.includes(w) ? ' <b style="color:var(--amber)">Esta é semana de deload.</b>' : ''} Se não bater com o que você está fazendo, ajuste aqui.</div>
+      <div style="display:flex;gap:6px;">
+        <button class="databtn" id="cycleMinus">− 1 semana</button>
+        <button class="databtn" id="cyclePlus">+ 1 semana</button>
+        <button class="databtn" id="cycleReset">Recomeçar hoje</button>
+      </div>`;
+    const shift = n => {
+      let start = addDaysISO(state.programStart || todayISO(), -7 * n);
+      if (daysBetween(start, todayISO()) < 0) start = todayISO();
+      state.programStart = start;
+      state.selectedWeek = programWeek();
+      saveState(); refreshProgress(); renderDayContent();
+    };
+    document.getElementById('cyclePlus').onclick = () => shift(1);
+    document.getElementById('cycleMinus').onclick = () => shift(-1);
+    document.getElementById('cycleReset').onclick = () => { state.programStart = todayISO(); state.selectedWeek = 1; saveState(); refreshProgress(); renderDayContent(); };
+  }
+  function refreshProgress(){ renderCycleCard(); renderWeekPicker(); renderPhases(); }
+
+  // Cronômetro de isometria na barra flutuante. Cada fase termina num horário fixo,
+  // então não atrasa se o celular bloquear a tela no meio.
+  let hold = null;
+  function startHold(label, secs, perSide, onDone){
+    stopHold();
+    const phases = perSide
+      ? [{ label: label + ' — lado 1', secs }, { label: 'Troque de lado', secs: 5 }, { label: label + ' — lado 2', secs }]
+      : [{ label, secs }];
+    hold = { phases, idx: 0, endAt: Date.now() + phases[0].secs * 1000, onDone, intervalId: null };
+    activeFloatTimerId = '__hold__';
+    hold.intervalId = setInterval(tickHold, 250);
+    tickHold();
+  }
+  function stopHold(){ if (hold && hold.intervalId) clearInterval(hold.intervalId); hold = null; }
+  function tickHold(){
+    if (!hold) return;
+    const bar = document.getElementById('floatRest');
+    let remain = Math.ceil((hold.endAt - Date.now()) / 1000);
+    while (hold && remain <= 0){
+      playBeep(); vibrateAlert();
+      hold.idx++;
+      if (hold.idx >= hold.phases.length){
+        const cb = hold.onDone;
+        stopHold();
+        document.getElementById('floatRestLabel').textContent = 'Isometria';
+        document.getElementById('floatRestClock').textContent = 'Feito ✓';
+        bar.classList.add('show');
+        setTimeout(() => { if (!hold && activeFloatTimerId === '__hold__') bar.classList.remove('show'); }, 3000);
+        if (cb) cb();
+        return;
+      }
+      hold.endAt += hold.phases[hold.idx].secs * 1000;
+      remain = Math.ceil((hold.endAt - Date.now()) / 1000);
+    }
+    document.getElementById('floatRestLabel').textContent = hold.phases[hold.idx].label;
+    document.getElementById('floatRestClock').textContent = fmtRest(Math.max(remain, 0));
+    bar.classList.add('show');
+  }
+
   // ============ INIT ============
   renderName();
   renderSettings();
@@ -2135,7 +2767,9 @@
   renderAssessment();
   renderAnalysis();
   renderMacros();
-  renderPhases();
+  renderPlace();
+  renderMobility();
+  refreshProgress();
   checkReminders();
 
   // ============ PWA: service worker ============
